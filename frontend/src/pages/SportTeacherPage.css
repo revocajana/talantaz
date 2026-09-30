@@ -1,0 +1,2424 @@
+.sport-teacher-page {
+  display: block;
+  min-height: 100vh;
+  background: #f8faff;
+}
+
+.sport-teacher-page .badge-danger {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.sport-teacher-page .badge-pending {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.sport-teacher-app-bar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  width: 100%;
+  min-height: 72px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 24px;
+  box-sizing: border-box;
+  background: linear-gradient(135deg, #0E1DB6 0%, #1e90ff 100%);
+  color: white;
+  box-shadow: 0 8px 20px rgba(14, 29, 182, 0.2);
+}
+
+.sport-teacher-brand {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 14px;
+  font-size: 20px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.sport-teacher-brand img {
+  width: auto;
+  height: 72px;
+  margin: -10px 0;
+  object-fit: contain;
+}
+
+.sport-teacher-profile {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.sport-teacher-app-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sport-teacher-profile-button {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+  background: transparent;
+  color: white;
+  cursor: pointer;
+}
+
+.sport-teacher-profile-button svg {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.sport-teacher-profile-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  display: grid;
+  min-width: 170px;
+  padding: 6px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: white;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.18);
+}
+
+.sport-teacher-profile-menu button {
+  padding: 10px 12px;
+  border: 0;
+  background: transparent;
+  color: #111827;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sport-teacher-profile-menu button:hover,
+.sport-teacher-profile-menu button:focus-visible {
+  background: #eef2ff;
+  color: #0E1DB6;
+}
+
+.sport-teacher-profile-menu .sport-teacher-profile-logout {
+  color: #dc2626;
+}
+
+.sport-teacher-profile-menu .sport-teacher-profile-logout:hover,
+.sport-teacher-profile-menu .sport-teacher-profile-logout:focus-visible {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.sport-teacher-navigation-toggle {
+  display: none;
+  width: 44px;
+  height: 44px;
+  padding: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.sport-teacher-navigation-toggle span {
+  display: block;
+  height: 2px;
+  margin: 5px 0;
+  border-radius: 2px;
+  background: white;
+}
+
+.sport-teacher-navigation {
+  position: fixed;
+  top: 72px;
+  left: 0;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: max-content;
+  height: calc(100vh - 72px);
+  max-height: calc(100vh - 72px);
+  overflow-y: auto;
+  padding: 12px 8px;
+  box-sizing: border-box;
+  background: #4682b4;
+  box-shadow: 8px 0 22px rgba(15, 23, 42, 0.16);
+}
+
+.sport-teacher-navigation-heading {
+  padding: 0 10px 8px;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.sport-teacher-navigation button {
+  display: flex;
+  width: max-content;
+  min-width: 0;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: white;
+  font-size: 14px;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.sport-teacher-logout-button {
+  margin-top: 8px;
+}
+
+.sport-teacher-navigation button:hover,
+.sport-teacher-navigation button:focus-visible {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.sport-teacher-prototype-content {
+  display: block;
+  width: calc(100% - 240px);
+  margin-left: 240px;
+  min-height: calc(100vh - 72px);
+  padding: 40px 32px;
+  box-sizing: border-box;
+  color: #1f2937;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.sport-teacher-dashboard-overview {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.sport-teacher-overview-card {
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid #dbe4ee;
+  border-radius: 10px;
+  background: white;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+}
+
+.sport-teacher-overview-card-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.sport-teacher-overview-card-heading h2 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 18px;
+}
+
+.sport-teacher-overview-card-heading p {
+  margin: 5px 0 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.sport-teacher-overview-card-heading button {
+  flex-shrink: 0;
+  padding: 6px 10px;
+  border: 1px solid #dbe4ee;
+  border-radius: 6px;
+  background: #f8fafc;
+  color: #0e1db6;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.sport-teacher-talent-bars {
+  display: grid;
+  gap: 14px;
+}
+
+.sport-teacher-talent-donut-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 18px;
+}
+
+.sport-teacher-talent-donut {
+  position: relative;
+  display: grid;
+  justify-self: center;
+  width: 165px;
+  height: 165px;
+  border-radius: 50%;
+  place-items: center;
+}
+
+.sport-teacher-talent-donut::before {
+  width: 75px;
+  height: 75px;
+  border-radius: 50%;
+  background: white;
+  content: '';
+}
+
+.sport-teacher-talent-donut > div {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  color: #0f172a;
+}
+
+.sport-teacher-talent-donut strong {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.sport-teacher-talent-donut span {
+  margin-top: 4px;
+  color: #64748b;
+  font-size: 11px;
+}
+
+.sport-teacher-talent-donut-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 9px 14px;
+  grid-column: 2;
+  width: 100%;
+  min-width: 0;
+}
+
+.sport-teacher-talent-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #475569;
+  font-size: 12px;
+}
+
+.sport-teacher-talent-legend-name {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 7px;
+}
+
+.sport-teacher-talent-legend-name i {
+  flex: 0 0 9px;
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+}
+
+.sport-teacher-talent-legend-item strong {
+  flex-shrink: 0;
+  color: #0f172a;
+}
+
+.sport-teacher-talent-bar-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+  color: #334155;
+  font-size: 13px;
+}
+
+.sport-teacher-talent-bar-label strong {
+  color: #0f172a;
+}
+
+.sport-teacher-talent-bar-track,
+.sport-teacher-progress-track {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e8edf3;
+}
+
+.sport-teacher-talent-bar-track span,
+.sport-teacher-progress-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #4682b4, #0e1db6);
+}
+
+.sport-teacher-progress-summary {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: baseline;
+  column-gap: 8px;
+}
+
+.sport-teacher-progress-summary strong {
+  color: #0f172a;
+  font-size: 34px;
+}
+
+.sport-teacher-progress-summary > span {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.sport-teacher-progress-track {
+  grid-column: 1 / -1;
+  margin-top: 12px;
+}
+
+.sport-teacher-result-legend {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.sport-teacher-result-legend span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.sport-teacher-result-legend strong {
+  margin-left: auto;
+  color: #0f172a;
+}
+
+.sport-teacher-result-legend i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #94a3b8;
+}
+
+.sport-teacher-result-legend i.is-scored { background: #0e1db6; }
+.sport-teacher-result-legend i.is-pending { background: #f59e0b; }
+.sport-teacher-result-legend i.is-passed { background: #16a34a; }
+.sport-teacher-result-legend i.is-failed { background: #dc2626; }
+
+.sport-teacher-overview-empty {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.sport-teacher-home-competitions {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: white;
+}
+
+.sport-teacher-home-top-students {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: white;
+}
+
+.sport-teacher-home-top-student-list {
+  display: grid;
+  gap: 14px;
+  padding: 18px 20px;
+}
+
+.sport-teacher-home-top-student {
+  display: grid;
+  gap: 6px;
+}
+
+.sport-teacher-home-top-student-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: #334155;
+  font-size: 13px;
+}
+
+.sport-teacher-home-top-student-label span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sport-teacher-home-top-student-label strong {
+  flex-shrink: 0;
+  color: #0f172a;
+}
+
+.sport-teacher-home-top-student small {
+  overflow: hidden;
+  color: #64748b;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sport-teacher-home-competition-list {
+  display: grid;
+  gap: 0;
+}
+
+.sport-teacher-home-competition-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(90px, 0.8fr) minmax(150px, 1fr);
+  align-items: center;
+  gap: 14px;
+  padding: 14px 20px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #475569;
+  font-size: 13px;
+}
+
+.sport-teacher-home-competition-row:last-child {
+  border-bottom: 0;
+}
+
+.sport-teacher-home-competition-row strong {
+  min-width: 0;
+  overflow: hidden;
+  color: #0f172a;
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sport-teacher-home-competition-title {
+  min-width: 0;
+  overflow: hidden;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #0f172a;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.sport-teacher-home-competition-title:hover,
+.sport-teacher-home-competition-title:focus-visible {
+  color: #0e1db6;
+  text-decoration: underline;
+  outline: none;
+}
+
+.sport-teacher-home-competition-level {
+  color: #0e1db6;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.sport-teacher-attention-section {
+  margin-bottom: 16px;
+  padding: 14px 16px;
+  border: 1px solid #dbe4ee;
+  border-radius: 10px;
+  background: white;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+}
+
+.sport-teacher-attention-heading {
+  margin-bottom: 10px;
+}
+
+.sport-teacher-attention-heading h2 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 16px;
+}
+
+.sport-teacher-attention-heading p {
+  margin: 3px 0 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.sport-teacher-attention-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 0.9fr)) minmax(0, 1.4fr);
+  gap: 8px;
+}
+
+.sport-teacher-attention-card {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 8px;
+  min-height: 42px;
+  padding: 8px 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #0f172a;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.sport-teacher-attention-card:hover,
+.sport-teacher-attention-card:focus-visible {
+  border-color: #0e1db6;
+  box-shadow: 0 8px 18px rgba(14, 29, 182, 0.1);
+  outline: none;
+  transform: translateY(-2px);
+}
+
+.sport-teacher-attention-label {
+  min-width: 0;
+  overflow: hidden;
+  color: #475569;
+  flex: 1;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sport-teacher-attention-card strong {
+  flex-shrink: 0;
+  color: #0f172a;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.sport-teacher-attention-card small {
+  flex-shrink: 0;
+  color: #64748b;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.sport-teacher-loading-skeleton {
+  width: min(100%, 1200px);
+  margin: 0 auto;
+}
+
+.sport-teacher-skeleton-attention {
+  margin-bottom: 16px;
+  padding: 14px 16px;
+  border: 1px solid #dbe4ee;
+  border-radius: 10px;
+  background: white;
+}
+
+.sport-teacher-skeleton-attention-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 0.9fr)) minmax(0, 1.4fr);
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.sport-teacher-skeleton-attention-card {
+  display: flex;
+  min-height: 42px;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.sport-teacher-skeleton-overview,
+.sport-teacher-skeleton-home-panels {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.sport-teacher-skeleton-overview-card {
+  min-width: 0;
+}
+
+.sport-teacher-skeleton-overview-content {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  align-items: center;
+  gap: 22px;
+  margin-top: 20px;
+}
+
+.sport-teacher-skeleton-donut {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+}
+
+.sport-teacher-skeleton-legend {
+  display: grid;
+  gap: 12px;
+}
+
+.sport-teacher-skeleton-legend-row {
+  width: 88%;
+  height: 12px;
+}
+
+.sport-teacher-skeleton-home-panels {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-bottom: 0;
+}
+
+.sport-teacher-skeleton-heading {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.sport-teacher-skeleton-block {
+  position: relative;
+  overflow: hidden;
+  border-radius: 6px;
+  background: #e8edf3;
+}
+
+.sport-teacher-skeleton-block::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.72), transparent);
+  content: '';
+  transform: translateX(-100%);
+  animation: sport-teacher-skeleton-shimmer 1.35s ease-in-out infinite;
+}
+
+.sport-teacher-skeleton-title {
+  width: min(330px, 62%);
+  height: 32px;
+}
+
+.sport-teacher-skeleton-subtitle {
+  width: min(220px, 45%);
+  height: 14px;
+}
+
+.sport-teacher-skeleton-stats,
+.sport-teacher-skeleton-panels {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.sport-teacher-skeleton-card {
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: white;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+}
+
+.sport-teacher-skeleton-label {
+  width: 72%;
+  height: 12px;
+}
+
+.sport-teacher-skeleton-number {
+  width: 42%;
+  height: 30px;
+  margin-top: 14px;
+}
+
+.sport-teacher-skeleton-actions {
+  margin-bottom: 24px;
+}
+
+.sport-teacher-skeleton-section-title {
+  width: 150px;
+  height: 18px;
+}
+
+.sport-teacher-skeleton-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.sport-teacher-skeleton-action {
+  width: 130px;
+  height: 36px;
+}
+
+.sport-teacher-skeleton-panels {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-bottom: 0;
+}
+
+.sport-teacher-skeleton-panel {
+  min-width: 0;
+}
+
+.sport-teacher-skeleton-panel-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.sport-teacher-skeleton-count {
+  width: 64px;
+  height: 14px;
+}
+
+.sport-teacher-skeleton-table-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(70px, 0.8fr);
+  gap: 16px;
+  padding: 17px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.sport-teacher-skeleton-row-main,
+.sport-teacher-skeleton-row-secondary {
+  height: 14px;
+}
+
+.sport-teacher-skeleton-row-main {
+  width: 88%;
+}
+
+.sport-teacher-skeleton-row-secondary {
+  width: 72%;
+}
+
+@keyframes sport-teacher-skeleton-shimmer {
+  100% { transform: translateX(100%); }
+}
+
+.sport-teacher-home {
+  width: min(100%, 1100px);
+  margin: 0 auto;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.sport-teacher-home-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.sport-teacher-eyebrow {
+  margin: 0 0 6px;
+  color: #4682b4;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.sport-teacher-home h1 {
+  margin: 0;
+  color: #0f172a;
+  font-size: clamp(24px, 4vw, 36px);
+}
+
+.sport-teacher-home-heading p:last-child {
+  margin: 8px 0 0;
+  color: #64748b;
+}
+
+.sport-teacher-date {
+  color: #64748b;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.sport-teacher-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.sport-teacher-stat-grid > div,
+.sport-teacher-home-section {
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: white;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+}
+
+.sport-teacher-stat-grid span,
+.sport-teacher-student-list small {
+  display: block;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.sport-teacher-stat-grid strong {
+  display: block;
+  margin-top: 8px;
+  color: #0f172a;
+  font-size: 30px;
+}
+
+.sport-teacher-home-section h2 {
+  margin: 0 0 14px;
+  color: #0f172a;
+  font-size: 18px;
+}
+
+.sport-teacher-home-section > p {
+  margin: 0;
+  color: #64748b;
+}
+
+.sport-teacher-prototype-page {
+  width: min(100%, 1100px);
+  margin: 0 auto;
+}
+
+.sport-teacher-prototype-page-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.sport-teacher-prototype-page-heading p {
+  margin: 0;
+}
+
+.sport-teacher-prototype-page-heading h1 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 28px;
+}
+
+.sport-teacher-management-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 20px;
+  margin-top: 28px;
+}
+
+.sport-teacher-management-card {
+  min-width: 0;
+  height: max-content;
+  padding: 20px;
+  border: 1px solid #dbe4ee;
+  border-radius: 10px;
+  background: white;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+}
+
+.sport-teacher-card-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.sport-teacher-card-heading h2 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 20px;
+}
+
+.sport-teacher-card-heading p {
+  margin: 5px 0 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.sport-teacher-card-heading > strong {
+  color: #4682b4;
+  font-size: 24px;
+}
+
+.sport-teacher-card-action {
+  padding: 8px 12px;
+  border: 1px solid #0e1db6;
+  border-radius: 7px;
+  background: #0e1db6;
+  color: white;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sport-teacher-card-action:hover,
+.sport-teacher-card-action:focus-visible {
+  background: #1728d1;
+}
+
+.sport-teacher-club-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.sport-teacher-club-list button {
+  display: grid;
+  gap: 5px;
+  padding: 16px 18px;
+  border: 1px solid #dbe4ee;
+  border-radius: 9px;
+  background: white;
+  color: #0f172a;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.04);
+}
+
+.sport-teacher-club-list button:hover,
+.sport-teacher-club-list button:focus-visible {
+  border-color: #4682b4;
+  background: #f5f9fc;
+}
+
+.sport-teacher-category-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.sport-teacher-category-list button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #0f172a;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sport-teacher-category-list button:hover,
+.sport-teacher-category-list button:focus-visible {
+  border-color: #4682b4;
+  background: #f5f9fc;
+}
+
+.sport-teacher-category-list span {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.sport-teacher-club-list span,
+.sport-teacher-empty-message,
+.sport-teacher-drawer-kicker {
+  color: #64748b;
+  font-size: 14px;
+}
+
+.sport-teacher-drawer-note {
+  margin-top: 20px !important;
+  padding-top: 16px;
+  border-top: 1px solid #e2e8f0;
+  font-size: 13px !important;
+}
+
+.sport-teacher-club-limit {
+  margin: 0 0 18px;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.sport-teacher-club-checkbox-list {
+  display: grid;
+  gap: 6px;
+  max-height: calc(100vh - 260px);
+  overflow-y: auto;
+}
+
+.sport-teacher-club-checkbox-list label {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 7px;
+  background: white;
+  color: #334155;
+  cursor: pointer;
+}
+
+.sport-teacher-club-checkbox-list label:has(input:checked) {
+  border-color: #0e1db6;
+  background: #f4f5ff;
+}
+
+.sport-teacher-club-checkbox-list label.is-disabled {
+  background: #f8fafc;
+  color: #94a3b8;
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.sport-teacher-club-checkbox-list label.is-disabled strong,
+.sport-teacher-club-checkbox-list label.is-disabled small {
+  color: #94a3b8;
+}
+
+.sport-teacher-registered-club {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid #c7d2fe;
+  border-radius: 7px;
+  background: #f4f5ff;
+}
+
+.sport-teacher-registered-club span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.sport-teacher-registered-club strong {
+  color: #0f172a;
+  font-size: 14px;
+}
+
+.sport-teacher-registered-club small {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.sport-teacher-registered-club button {
+  flex-shrink: 0;
+  padding: 4px 8px;
+  border: 1px solid #fecaca;
+  border-radius: 5px;
+  background: #fff1f2;
+  color: #b91c1c;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.sport-teacher-club-checkbox-list input {
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  flex: 0 0 auto;
+  accent-color: #0e1db6;
+}
+
+.sport-teacher-club-checkbox-list span {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+  overflow: visible;
+  color: #334155;
+  line-height: 1.4;
+}
+
+.sport-teacher-club-checkbox-list strong {
+  display: block;
+  overflow-wrap: anywhere;
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.sport-teacher-club-checkbox-list small {
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.sport-teacher-drawer-list {
+  display: grid;
+  max-height: calc(100vh - 180px);
+  gap: 12px;
+  overflow-y: auto;
+}
+
+.sport-teacher-drawer-list > div {
+  display: block;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.sport-teacher-drawer-list strong {
+  color: #0f172a;
+}
+
+.sport-teacher-drawer-list span {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.sport-teacher-drawer-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.sport-teacher-drawer-table th,
+.sport-teacher-drawer-table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid #eef2f7;
+  text-align: left;
+  vertical-align: top;
+}
+
+.sport-teacher-drawer-table th {
+  color: #475569;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.sport-teacher-drawer-table td {
+  color: #334155;
+  line-height: 1.45;
+}
+
+.sport-teacher-empty-message {
+  margin-top: 24px;
+}
+
+.sport-teacher-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  border: 0;
+  background: rgba(15, 23, 42, 0.32);
+  cursor: default;
+}
+
+.sport-teacher-search-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 201;
+  display: grid;
+  width: min(var(--drawer-width, 440px), 94vw);
+  height: 100vh;
+  align-content: start;
+  gap: 12px;
+  padding: 28px 24px 20px;
+  box-sizing: border-box;
+  background: white;
+  box-shadow: -12px 0 30px rgba(15, 23, 42, 0.2);
+  animation: sport-teacher-drawer-in 0.2s ease-out;
+}
+
+.sport-teacher-search-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-top: 2px;
+}
+
+.sport-teacher-search-drawer-header h2 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 20px;
+}
+
+.sport-teacher-search-drawer-header button {
+  border: 0;
+  background: transparent;
+  color: #64748b;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.sport-teacher-drawer-resize-edge {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -6px;
+  width: 12px;
+  cursor: ew-resize;
+  touch-action: none;
+}
+
+.sport-teacher-search-drawer label {
+  color: #334155;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.sport-teacher-search-drawer input {
+  width: 100%;
+  min-height: 26px;
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  box-sizing: border-box;
+  color: #0f172a;
+  font-size: 13px;
+}
+
+.sport-teacher-search-drawer .sport-teacher-club-checkbox-list input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  min-height: 16px;
+  margin: 2px 0 0;
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
+  flex: 0 0 16px;
+}
+
+.sport-teacher-search-drawer p {
+  margin: 4px 0 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.sport-teacher-profile-details {
+  display: grid;
+  gap: 16px;
+}
+
+.sport-teacher-profile-details div {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  align-items: baseline;
+  gap: 8px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.sport-teacher-profile-details span {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.sport-teacher-profile-details strong {
+  color: #0f172a;
+  font-size: 15px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.sport-teacher-profile-form {
+  display: grid;
+  gap: 18px;
+}
+
+.sport-teacher-profile-form label {
+  display: grid;
+  gap: 8px;
+}
+
+.sport-teacher-profile-submit {
+  min-height: 42px;
+  border: 0;
+  border-radius: 7px;
+  background: #0e1db6;
+  color: white;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sport-teacher-competition-date-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.sport-teacher-competition-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.sport-teacher-competition-form-actions button {
+  min-height: 42px;
+  padding: 10px 16px;
+  border-radius: 7px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.sport-teacher-competition-form-actions .sport-teacher-competition-delete {
+  border: 1px solid #fecaca;
+  background: #fff1f2;
+  color: #b91c1c;
+  margin-right: auto;
+}
+
+.sport-teacher-competition-form-actions .sport-teacher-competition-delete:hover,
+.sport-teacher-competition-form-actions .sport-teacher-competition-delete:focus-visible {
+  border-color: #dc2626;
+  background: #fee2e2;
+  outline: none;
+}
+
+.sport-teacher-competition-form-actions .sport-teacher-competition-save {
+  min-width: 132px;
+  border: 1px solid #0e1db6;
+  background: #0e1db6;
+  color: white;
+}
+
+.sport-teacher-competition-form-actions .sport-teacher-competition-save:hover,
+.sport-teacher-competition-form-actions .sport-teacher-competition-save:focus-visible {
+  border-color: #1728d1;
+  background: #1728d1;
+  box-shadow: 0 5px 12px rgba(14, 29, 182, 0.2);
+  outline: none;
+}
+
+.sport-teacher-competition-form-actions button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.sport-teacher-drawer-kicker {
+  margin: 0;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.sport-teacher-drawer-controls {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e2e8f0;
+  align-items: center;
+}
+
+.sport-teacher-search-input,
+.sport-teacher-sort-select {
+  padding: 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  box-sizing: border-box;
+  color: #0f172a;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.sport-teacher-search-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.sport-teacher-sort-select {
+  flex-shrink: 0;
+  min-width: 140px;
+}
+
+.sport-teacher-search-input::placeholder {
+  color: #94a3b8;
+}
+
+.sport-teacher-sort-select {
+  background-color: white;
+  cursor: pointer;
+}
+
+.sport-teacher-sort-select:hover {
+  border-color: #94a3b8;
+}
+
+.sport-teacher-drawer-talent-item {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: white;
+  color: #0f172a;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sport-teacher-drawer-talent-item:hover {
+  border-color: #4682b4;
+  background: #f8fafc;
+  box-shadow: 0 2px 8px rgba(70, 130, 180, 0.1);
+}
+
+.sport-teacher-drawer-talent-item strong {
+  color: #0f172a;
+}
+
+.sport-teacher-drawer-talent-item span {
+  color: #64748b;
+  margin-left: 6px;
+}
+
+.sport-teacher-registration-drawer {
+  top: 0;
+  right: 0;
+  z-index: 1201;
+  display: flex;
+  flex-direction: column;
+  visibility: visible;
+  overflow: hidden;
+}
+
+.sport-teacher-registration-backdrop {
+  z-index: 1200;
+}
+
+.sport-teacher-registration-drawer form {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  gap: 14px;
+  overflow-y: auto;
+  padding: 4px 4px 6px 0;
+  color: #374151;
+}
+
+.sport-teacher-registration-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 0;
+}
+
+.sport-teacher-registration-form-grid label,
+.sport-teacher-registration-assignment-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.sport-teacher-registration-form-grid label[data-label] {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 38px;
+}
+
+.sport-teacher-registration-form-grid label[data-label]::before {
+  content: attr(data-label);
+  position: absolute;
+  top: 0;
+  left: 10px;
+  z-index: 1;
+  padding: 0 4px;
+  background: #fff;
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.talent-admin-select-wrap {
+  position: relative;
+  display: block;
+}
+
+.talent-admin-select-spinner {
+  position: absolute;
+  top: 50%;
+  right: 28px;
+  width: 10px;
+  height: 10px;
+  border: 2px solid rgba(100, 116, 139, 0.25);
+  border-top-color: #0e1db6;
+  border-radius: 50%;
+  transform: translateY(-50%);
+  animation: talent-admin-spinner-spin 0.8s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes talent-admin-spinner-spin {
+  to {
+    transform: translateY(-50%) rotate(360deg);
+  }
+}
+
+.sport-teacher-registration-form-grid input,
+.sport-teacher-registration-form-grid select,
+.sport-teacher-registration-form-grid textarea {
+  width: 100%;
+  min-height: 32px;
+  padding: 16px 28px 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  background: white;
+  box-sizing: border-box;
+  color: #0f172a;
+  font: inherit;
+  font-weight: 400;
+}
+
+.sport-teacher-registration-form-grid textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+.sport-teacher-profile-form .sport-teacher-registration-form-grid:last-child {
+  position: static;
+  bottom: auto;
+  z-index: auto;
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+  background: transparent;
+}
+
+.sport-teacher-registration-form-grid input:focus,
+.sport-teacher-registration-form-grid select:focus,
+.sport-teacher-registration-form-grid textarea:focus,
+.sport-teacher-registration-assignment-grid select:focus {
+  border-color: #4682b4;
+  outline: 3px solid rgba(70, 130, 180, 0.16);
+}
+
+.sport-teacher-announcement-form {
+  display: grid;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.sport-teacher-announcement-title {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #111827;
+  font: inherit;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.3;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sport-teacher-announcement-title:hover,
+.sport-teacher-announcement-title:focus-visible {
+  color: #0e1db6;
+  text-decoration: underline;
+}
+
+.sport-teacher-announcement-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.sport-teacher-announcement-form input,
+.sport-teacher-announcement-form textarea {
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  background: white;
+  box-sizing: border-box;
+  color: #0f172a;
+  font: inherit;
+  font-weight: 400;
+}
+
+.sport-teacher-announcement-form textarea {
+  min-height: 150px;
+  resize: vertical;
+}
+
+.sport-teacher-announcement-form input:focus,
+.sport-teacher-announcement-form textarea:focus {
+  border-color: #4682b4;
+  outline: 3px solid rgba(70, 130, 180, 0.16);
+}
+
+.sport-teacher-announcement-form-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 180px) auto auto;
+  align-items: end;
+  gap: 16px;
+}
+
+.sport-teacher-announcement-form-actions > button {
+  min-height: 38px;
+  padding: 8px 16px;
+  border: 0;
+  border-radius: 7px;
+  background: #0e1db6;
+  color: white;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sport-teacher-announcement-form-actions > .sport-teacher-announcement-delete {
+  background: #b91c1c;
+}
+
+.sport-teacher-announcement-form-actions > button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.sport-teacher-password-control {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.sport-teacher-password-control input {
+  padding-right: 64px;
+}
+
+.sport-teacher-password-control button {
+  position: absolute;
+  right: 8px;
+  padding: 4px 6px;
+  border: 0;
+  background: transparent;
+  color: #0e1db6;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.sport-teacher-password-control button svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.sport-teacher-password-control button:hover,
+.sport-teacher-password-control button:focus-visible {
+  color: #4682b4;
+  text-decoration: underline;
+}
+
+.sport-teacher-registration-password-club-row {
+  margin-top: 16px;
+}
+
+.sport-teacher-registration-talents {
+  min-width: 0;
+  margin: 20px 0 0;
+  padding: 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.sport-teacher-edit-club-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-top: 16px;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.sport-teacher-edit-club-field select {
+  min-height: 42px;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  background: white;
+  color: #0f172a;
+  font: inherit;
+  font-weight: 400;
+}
+
+.sport-teacher-registration-talents legend {
+  padding: 0 6px;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.sport-teacher-registration-checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 16px;
+}
+
+.sport-teacher-talent-category + .sport-teacher-talent-category {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid #eef2f7;
+}
+
+.sport-teacher-talent-category h3 {
+  margin: 0 0 10px;
+  color: #4682b4;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.sport-teacher-registration-checkbox-grid label {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  color: #475569;
+  font-size: 14px;
+  font-weight: 400;
+  cursor: pointer;
+}
+
+.sport-teacher-registration-checkbox-grid input {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+  accent-color: #0e1db6;
+}
+
+.sport-teacher-registration-checkbox-grid span {
+  overflow-wrap: anywhere;
+}
+
+.sport-teacher-registration-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.sport-teacher-registration-form-actions button {
+  min-height: 42px;
+  padding: 10px 18px;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  background: white;
+  color: #334155;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sport-teacher-registration-form-actions button[type='submit'] {
+  border-color: #0e1db6;
+  background: #0e1db6;
+  color: white;
+}
+
+.sport-teacher-danger-button {
+  margin-right: auto;
+  border-color: #fecaca !important;
+  background: #fef2f2 !important;
+  color: #b91c1c !important;
+}
+
+.sport-teacher-student-id-link {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #0e1db6;
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.sport-teacher-student-id-link:hover,
+.sport-teacher-student-id-link:focus-visible {
+  color: #4682b4;
+}
+
+.sport-teacher-registration-form-actions button:hover,
+.sport-teacher-registration-form-actions button:focus-visible {
+  filter: brightness(0.96);
+}
+
+.sport-teacher-results-stack {
+  display: grid;
+  gap: 20px;
+}
+
+.sport-teacher-results-card {
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: white;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+}
+
+.sport-teacher-results-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.sport-teacher-results-card-header h2 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 18px;
+}
+
+.sport-teacher-results-card-header p {
+  margin: 5px 0 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.sport-teacher-results-table-wrap {
+  overflow-x: auto;
+}
+
+.sport-teacher-results-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.sport-teacher-results-table th,
+.sport-teacher-results-table td {
+  padding: 11px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.sport-teacher-inline-score {
+  width: 86px;
+  min-height: 34px;
+  padding: 6px 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: white;
+  color: #0f172a;
+  font: inherit;
+  font-weight: 600;
+}
+
+.sport-teacher-inline-score:focus {
+  border-color: #0e1db6;
+  outline: 3px solid rgba(14, 29, 182, 0.14);
+}
+
+.sport-teacher-score-editor {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sport-teacher-inline-save-state {
+  min-width: 48px;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.sport-teacher-inline-save-state.is-saving,
+.sport-teacher-inline-save-state.is-pending {
+  color: #b45309;
+}
+
+.sport-teacher-inline-save-state.is-saved {
+  color: #15803d;
+}
+
+.sport-teacher-inline-save-state.is-failed {
+  color: #b91c1c;
+}
+
+.sport-teacher-inline-grade {
+  min-width: 48px;
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.sport-teacher-save-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid #dbe4ee;
+  border-top-color: #0e1db6;
+  border-radius: 50%;
+  animation: sport-teacher-spin 0.7s linear infinite;
+  vertical-align: middle;
+}
+
+@keyframes sport-teacher-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.sport-teacher-results-table th {
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.sport-teacher-result-row-clickable {
+  cursor: pointer;
+}
+
+.sport-teacher-result-row-clickable:hover {
+  background: #f4f5ff;
+}
+
+.sport-teacher-results-empty {
+  padding: 28px 16px !important;
+  color: #94a3b8 !important;
+  text-align: center !important;
+}
+
+.sport-teacher-read-only-badge {
+  padding: 5px 9px;
+  border: 1px solid #cbd5e1;
+  border-radius: 999px;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.sport-teacher-optional-label {
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.sport-teacher-registration-assignment-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.sport-teacher-registration-assignment-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sport-teacher-registration-assignment-grid select {
+  width: 100%;
+  min-height: 42px;
+  padding: 8px 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: white;
+  color: #111827;
+  font: inherit;
+}
+
+.sport-teacher-registration-assignment-grid select[multiple] {
+  min-height: 120px;
+}
+
+@keyframes sport-teacher-drawer-in {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.sport-teacher-student-list {
+  display: grid;
+  gap: 12px;
+}
+
+.sport-teacher-student-list > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #1e293b;
+}
+
+.sport-teacher-layout {
+  display: flex;
+  min-height: calc(100vh - 72px);
+  align-items: stretch;
+}
+
+.sport-teacher-sidebar {
+  width: 240px;
+  background: #1a1a2e;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  overflow-y: auto;
+}
+
+.sport-teacher-main {
+  flex: 1;
+  min-width: 0;
+  padding: 24px;
+  overflow-x: hidden;
+}
+
+.page-header {
+  margin-bottom: 24px;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.page-subtitle {
+  color: #6b7280;
+  margin: 4px 0 0;
+  font-size: 14px;
+}
+
+.section-panel {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.table-card {
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+}
+
+.table-card-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.table-card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.table-card-meta {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.data-table thead tr {
+  background: #f9fafb;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.data-table th,
+.data-table td {
+  padding: 10px 16px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.data-table tbody tr {
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.chip {
+  display: inline-block;
+  padding: 2px 10px;
+  background: #eef2ff;
+  color: #0E1DB6;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+.action-btn {
+  padding: 8px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: white;
+  color: #111827;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.action-btn.primary {
+  background: #0E1DB6;
+  color: white;
+  border-color: #0E1DB6;
+}
+
+.action-btn:hover {
+  filter: brightness(0.98);
+}
+
+.empty-state {
+  padding: 30px;
+  text-align: center;
+  color: #9ca3af;
+}
+
+@media (max-width: 980px) {
+  .sport-teacher-layout {
+    flex-direction: column;
+  }
+
+  .sport-teacher-app-bar {
+    min-height: 64px;
+    padding: 8px 16px;
+  }
+
+  .sport-teacher-brand {
+    flex: 1;
+    gap: 8px;
+    min-width: 0;
+    font-size: 12px;
+  }
+
+  .sport-teacher-brand img {
+    width: auto;
+    height: 64px;
+    margin: -8px 0;
+  }
+
+  .sport-teacher-brand span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .sport-teacher-app-actions {
+    gap: 6px;
+  }
+
+  .sport-teacher-profile-button,
+  .sport-teacher-navigation-toggle {
+    width: 34px;
+    height: 34px;
+  }
+
+  .sport-teacher-profile-button svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .sport-teacher-navigation-toggle {
+    display: block;
+    padding: 6px;
+  }
+
+  .sport-teacher-navigation {
+    top: 64px;
+    width: max-content;
+    max-width: calc(100vw - 24px);
+    height: calc(100vh - 64px);
+    max-height: calc(100vh - 64px);
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+  }
+
+  .sport-teacher-prototype-content {
+    width: 100%;
+    margin-left: 0;
+    min-height: calc(100vh - 64px);
+    padding: 32px 20px;
+    font-size: 20px;
+  }
+
+  .sport-teacher-home-heading {
+    display: block;
+  }
+
+  .sport-teacher-prototype-page-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .sport-teacher-management-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sport-teacher-date {
+    display: block;
+    margin-top: 10px;
+  }
+
+  .sport-teacher-stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sport-teacher-dashboard-overview {
+    grid-template-columns: 1fr;
+  }
+
+  .sport-teacher-overview-card-heading {
+    flex-wrap: wrap;
+  }
+
+  .sport-teacher-talent-donut-layout {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+
+  .sport-teacher-talent-donut-legend {
+    width: 100%;
+  }
+
+  .sport-teacher-attention-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sport-teacher-home-competition-row {
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+
+  .sport-teacher-skeleton-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sport-teacher-skeleton-attention-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sport-teacher-skeleton-overview,
+  .sport-teacher-skeleton-home-panels {
+    grid-template-columns: 1fr;
+  }
+
+  .sport-teacher-skeleton-overview-content {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+
+  .sport-teacher-stat-grid > div,
+  .sport-teacher-home-section {
+    padding: 16px;
+  }
+
+  .sport-teacher-navigation.is-open {
+    transform: translateX(0);
+  }
+
+  .sport-teacher-sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+  }
+
+  .sport-teacher-main {
+    width: 100%;
+    min-width: 0;
+    padding: 16px;
+  }
+
+  .page-title {
+    font-size: 22px;
+  }
+
+  .sport-teacher-registration-assignment-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sport-teacher-registration-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sport-teacher-registration-checkbox-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sport-teacher-registration-form-actions {
+    justify-content: stretch;
+  }
+
+  .sport-teacher-registration-form-actions button {
+    flex: 1;
+  }
+}
+
+@media (max-width: 520px) {
+  .sport-teacher-attention-grid {
+    grid-template-columns: 1fr;
+  }
+}

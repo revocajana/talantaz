@@ -1,0 +1,367 @@
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(16px, 4vw, 24px);
+  background: linear-gradient(135deg, #f0f4ff 0%, #e6ecff 35%, #e0e8ff 100%);
+}
+
+.login-card {
+  box-sizing: border-box;
+  width: min(460px, 100%);
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+  padding: 32px 28px;
+}
+
+.registration-card {
+  box-sizing: border-box;
+  width: min(760px, 100%);
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+  padding: 32px 28px;
+}
+
+.registration-form {
+  display: grid;
+  gap: 22px;
+}
+
+.registration-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.registration-grid label {
+  display: grid;
+  gap: 7px;
+  color: #000;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.registration-grid input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #000;
+  border-radius: 10px;
+  padding: 0.75rem 0.85rem;
+  color: #0f172a;
+  background: #fff;
+  font-size: 0.95rem;
+}
+
+.registration-grid select {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #000;
+  border-radius: 10px;
+  padding: 0.75rem 0.85rem;
+  color: #0f172a;
+  background: #fff;
+  font-size: 0.95rem;
+}
+
+.registration-grid select:disabled {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.registration-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.secondary-btn {
+  border: 1px solid #000;
+  border-radius: 12px;
+  background: #fff;
+  color: #000;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 1rem 1.2rem;
+  cursor: pointer;
+}
+
+.registration-success {
+  display: grid;
+  gap: 12px;
+  text-align: center;
+  color: #1f2937;
+}
+
+.registration-success .primary-btn {
+  justify-self: center;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.brand-logo {
+  display: block;
+  width: min(220px, 100%);
+  height: auto;
+  margin: 0 auto 18px;
+}
+
+.welcome-label {
+  margin: 0 0 10px;
+  color: #0E1DB6;
+  font-weight: 700;
+  font-size: 1.5rem;
+  letter-spacing: 0;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.login-header h2 {
+  margin: 0;
+  color: #0f172a;
+  font-size: clamp(1.8rem, 2vw, 2.3rem);
+}
+
+.auth-form {
+  display: grid;
+  gap: 18px;
+}
+
+.field-group {
+  display: grid;
+  position: relative;
+}
+
+.field-group label {
+  position: absolute;
+  top: -0.45rem;
+  left: 0.8rem;
+  z-index: 1;
+  padding: 0 0.3rem;
+  background: #fff;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #000;
+}
+
+.field-group input {
+  width: 100%;
+  border: 1px solid #000;
+  border-radius: 12px;
+  background: #f8fafc;
+  padding: 0.9rem 1rem;
+  font-size: 1rem;
+  color: #0f172a;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.field-group input:focus {
+  border-color: #000;
+  box-shadow: 0 0 0 4px rgba(14, 29, 182, 0.12);
+  background: #ffffff;
+}
+
+.password-input-wrapper {
+  position: relative;
+}
+
+.password-input-wrapper input {
+  padding-right: 3.2rem;
+  /* Hide browser's default password visibility toggle */
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: #475569;
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.password-toggle svg {
+  width: 1.2rem;
+  height: 1.2rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.password-toggle:hover,
+.password-toggle:focus-visible {
+  color: #0E1DB6;
+}
+
+.primary-btn {
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #0E1DB6 0%, #0A1589 100%);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 1rem 1.2rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 12px 25px rgba(14, 29, 182, 0.24);
+}
+
+.login-action-row {
+  display: grid;
+  grid-template-columns: 30% 70%;
+  align-items: center;
+  gap: 12px;
+}
+
+.login-action-row .primary-btn {
+  width: 100%;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.register-school-link {
+  color: #0E1DB6;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: underline;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.primary-btn:hover {
+  transform: translateY(-1px);
+}
+
+.primary-btn:disabled {
+  opacity: 0.8;
+  cursor: wait;
+}
+
+.alert {
+  margin-bottom: 18px;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  font-size: 0.92rem;
+  font-weight: 500;
+}
+
+.alert.error {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.alert.error strong,
+.alert.error small {
+  display: block;
+}
+
+.alert.error small {
+  margin-top: 4px;
+  font-size: 0.8rem;
+  font-weight: 400;
+}
+
+@media (max-width: 480px) {
+  .login-page {
+    min-height: 100dvh;
+    padding: max(12px, env(safe-area-inset-top)) 16px max(12px, env(safe-area-inset-bottom));
+    overflow-y: auto;
+    scroll-padding-block: 16px;
+  }
+
+  .login-page:focus-within {
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
+
+  .login-card {
+    width: min(100%, 360px);
+    margin-block: auto;
+    padding: 24px 20px;
+  }
+
+  .login-page:focus-within .login-card {
+    margin-block: 12px;
+  }
+
+  .login-header {
+    margin-bottom: 20px;
+  }
+
+  .welcome-label {
+    max-width: 100%;
+    font-size: 1.15rem;
+    letter-spacing: 0;
+    white-space: nowrap;
+  }
+
+  .login-action-row {
+    grid-template-columns: max-content minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .login-action-row .primary-btn {
+    padding-left: 0.35rem;
+    padding-right: 0.35rem;
+  }
+
+  .registration-card {
+    width: min(100%, 480px);
+    margin: 12px auto;
+    padding: 20px 16px;
+  }
+
+  .registration-page {
+    align-items: flex-start;
+    overflow-y: auto;
+  }
+
+  .registration-page:focus-within {
+    align-items: flex-start;
+  }
+
+  .registration-form {
+    gap: 16px;
+  }
+
+  .registration-grid {
+    gap: 12px;
+  }
+
+  .registration-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .registration-actions .primary-btn,
+  .registration-actions .secondary-btn {
+    width: 100%;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    white-space: nowrap;
+  }
+
+  .registration-grid {
+    grid-template-columns: 1fr;
+  }
+}

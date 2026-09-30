@@ -1,0 +1,1019 @@
+.district-manager-page {
+  min-height: 100vh;
+}
+
+.district-manager-page .sport-teacher-app-bar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.district-manager-content {
+  width: calc(100% - 165px);
+  margin-left: 165px;
+  padding: 32px 18px;
+  box-sizing: border-box;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.district-manager-content > .cards-container {
+  width: min(100%, 1100px);
+  margin: 0 auto;
+}
+
+.district-manager-page .admin-section {
+  margin-bottom: 20px;
+  padding: 20px;
+  border: 1px solid #dbe4ee;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+}
+
+.district-manager-page .section-header {
+  margin-bottom: 20px;
+}
+
+.district-manager-page .section-header h2 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 20px;
+}
+
+.district-manager-page .section-header p {
+  margin: 5px 0 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.district-home-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  width: min(100%, 1100px);
+  margin: 0 auto;
+}
+
+.district-home-card {
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid #dbe4ee;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+}
+
+.district-calendar-card {
+  grid-column: 1 / -1;
+}
+
+.district-card-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.district-card-heading h2 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 18px;
+}
+
+.district-card-heading p,
+.district-card-kicker,
+.district-empty-state {
+  margin: 5px 0 0;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.district-card-kicker {
+  flex-shrink: 0;
+  margin: 0;
+  font-weight: 700;
+}
+
+.talent-chart-layout {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  min-height: 180px;
+}
+
+.talent-donut {
+  display: grid;
+  flex: 0 0 142px;
+  place-items: center;
+  width: 142px;
+  height: 142px;
+  border-radius: 50%;
+}
+
+.talent-donut > div {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.talent-legend {
+  display: grid;
+  flex: 1;
+  gap: 10px;
+}
+
+.talent-legend-row {
+  display: grid;
+  grid-template-columns: 9px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  color: #475569;
+  font-size: 13px;
+}
+
+.talent-legend-row span:not(.legend-dot) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.talent-legend-row strong {
+  color: #0f172a;
+}
+
+.legend-dot,
+.calendar-event-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.school-ranking,
+.competition-management-list,
+.recent-announcements {
+  display: grid;
+  gap: 11px;
+}
+
+.school-ranking-row,
+.competition-management-list > div,
+.recent-announcement-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.school-rank {
+  display: grid;
+  flex: 0 0 26px;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #eef2ff;
+  color: #0e1db6;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.school-ranking-name,
+.recent-announcement-row > div {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  gap: 3px;
+}
+
+.school-ranking-name strong,
+.recent-announcement-row strong {
+  overflow: hidden;
+  color: #0f172a;
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.school-ranking-name small,
+.recent-announcement-row small {
+  overflow: hidden;
+  color: #64748b;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.school-ranking-row > b {
+  color: #0e1db6;
+  font-size: 14px;
+}
+
+.competition-management-list > div {
+  justify-content: space-between;
+  color: #475569;
+  font-size: 13px;
+}
+
+.competition-management-list strong {
+  color: #0f172a;
+  font-size: 20px;
+}
+
+.district-primary-button,
+.district-text-button,
+.district-icon-button {
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+}
+
+.district-primary-button {
+  width: 100%;
+  margin-top: 18px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  background: #0e1db6;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.district-card-action {
+  width: auto;
+  flex-shrink: 0;
+  margin: 0;
+  padding: 8px 12px;
+}
+
+.district-competition-list {
+  display: grid;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.district-competition-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) auto;
+  gap: 5px 12px;
+  align-items: center;
+  width: 100%;
+  padding: 12px 0;
+  border-bottom: 1px solid #eef2f7;
+  border-top: 0;
+  border-right: 0;
+  border-left: 0;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+}
+
+.district-competition-row:last-child {
+  border-bottom: 0;
+}
+
+.district-competition-row.is-editable {
+  cursor: pointer;
+}
+
+.district-competition-row.is-editable:hover,
+.district-competition-row.is-editable:focus-visible {
+  background: #f8faff;
+  outline: none;
+}
+
+.district-competition-title {
+  min-width: 0;
+  overflow: hidden;
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.district-competition-status {
+  padding: 4px 7px;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #3730a3;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.district-competition-status.is-approved {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.district-competition-status.is-completed {
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.district-competition-status.is-cancelled {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.district-competition-row small {
+  grid-column: 1 / -1;
+  color: #64748b;
+  font-size: 11px;
+}
+
+.district-competition-row > span {
+  justify-self: end;
+  color: #64748b;
+  font-size: 11px;
+  line-height: 1.4;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.district-competition-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 13px;
+  color: #64748b;
+  font-size: 11px;
+}
+
+.district-competition-date-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.district-drawer-note {
+  margin: 0 0 10px;
+  padding: 10px 12px;
+  border-left: 3px solid #2563eb;
+  background: #eff6ff;
+  color: #1e40af;
+  font-size: 13px;
+}
+
+.district-profile-message {
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.district-profile-message.is-success {
+  border: 1px solid #bbf7d0;
+  background: #f0fdf4;
+  color: #166534;
+}
+
+.district-profile-message.is-error {
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.district-competition-form-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.district-competition-form-actions label {
+  display: grid;
+  gap: 5px;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.district-competition-form-actions select {
+  width: 100%;
+  padding: 9px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  background: #fff;
+  color: #0f172a;
+  font: inherit;
+}
+
+.district-competition-form-actions .district-primary-button {
+  width: auto;
+  margin: 0;
+  min-width: 108px;
+  align-self: end;
+}
+
+.district-competition-delete {
+  align-self: end;
+  padding: 9px 12px;
+  border: 1px solid #fecaca;
+  border-radius: 7px;
+  background: #fff;
+  color: #dc2626;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.district-competition-delete:hover {
+  background: #fef2f2;
+}
+
+@media (max-width: 520px) {
+  .district-competition-form-actions {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .district-competition-form-actions label {
+    grid-column: 1 / -1;
+  }
+
+  .district-competition-form-actions .district-primary-button,
+  .district-competition-delete {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+.district-text-button {
+  padding: 0;
+  background: transparent;
+  color: #0e1db6;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.district-icon-button {
+  flex: 0 0 auto;
+  padding: 3px 6px;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.district-icon-button:hover {
+  color: #dc2626;
+}
+
+.district-calendar-card {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 34px;
+}
+
+.district-calendar-card .district-card-heading {
+  grid-column: 1 / -1;
+}
+
+.calendar-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.calendar-controls button {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  place-items: center;
+  border: 1px solid #dbe4ee;
+  border-radius: 6px;
+  background: #fff;
+  color: #0e1db6;
+  cursor: pointer;
+  font: inherit;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.calendar-controls button:hover,
+.calendar-controls button:focus-visible {
+  border-color: #93c5fd;
+  background: #eff6ff;
+  outline: none;
+}
+
+.calendar-controls .calendar-today-button {
+  width: auto;
+  margin-left: 4px;
+  padding: 0 8px;
+  color: #475569;
+  font-size: 11px;
+}
+
+.calendar-weekdays,
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(30px, 1fr));
+  gap: 8px;
+  text-align: center;
+}
+
+.calendar-weekdays {
+  margin-bottom: 8px;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.calendar-grid {
+  grid-column: 1;
+}
+
+.calendar-day {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  margin: auto;
+  border-radius: 50%;
+  background: #fff;
+  color: #111827;
+  font-size: 13px;
+}
+
+.calendar-day.has-competition {
+  background: #0E1DB6;
+  color: #fff;
+  font-weight: 700;
+}
+
+.calendar-day.is-today:not(.has-competition) {
+  box-shadow: inset 0 0 0 2px #0E1DB6;
+  color: #0E1DB6;
+  font-weight: 700;
+}
+
+.calendar-day.is-empty {
+  visibility: hidden;
+}
+
+.calendar-events {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  grid-column: 2;
+  grid-row: 2 / span 2;
+  padding-left: 24px;
+  border-left: 1px solid #e5e7eb;
+}
+
+.calendar-events > div {
+  display: grid;
+  grid-template-columns: 8px minmax(0, 1fr);
+  gap: 6px 9px;
+  align-items: center;
+  color: #0f172a;
+  font-size: 13px;
+}
+
+.calendar-events strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.calendar-events small {
+  grid-column: 2;
+  color: #64748b;
+  font-size: 11px;
+}
+
+.calendar-event-dot {
+  background: #0E1DB6;
+}
+
+.district-manager-page .stats-overview,
+.district-manager-page .reports-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.district-manager-page .stats-overview {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.district-manager-page .stat-card,
+.district-manager-page .report-card {
+  padding: 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.district-manager-page .stat-label,
+.district-manager-page .report-card p {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.district-manager-page .stat-value {
+  margin: 6px 0 0;
+  color: #0f172a;
+  font-size: 28px;
+}
+
+.district-manager-page .report-card h4 {
+  margin: 0 0 10px;
+  color: #0f172a;
+  font-size: 16px;
+}
+
+.district-manager-page .stats-list {
+  margin: 0;
+  padding-left: 18px;
+  color: #475569;
+  font-size: 14px;
+}
+
+.district-manager-page .stats-list span {
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.district-manager-page .table-container {
+  overflow-x: auto;
+}
+
+.district-manager-page .data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.district-manager-page .data-table th,
+.district-manager-page .data-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #eef2f7;
+  text-align: left;
+  vertical-align: top;
+}
+
+.district-manager-page .data-table th {
+  background: #f8fafc;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.district-manager-alert {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  width: min(100%, 1100px);
+  margin: 0 auto 16px;
+  padding: 12px 16px;
+  border-left: 4px solid #dc2626;
+  border-radius: 6px;
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.district-manager-alert button {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.district-section-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.district-results-stack {
+  display: grid;
+  gap: 20px;
+  width: min(100%, 1100px);
+  margin: 0 auto;
+}
+
+.district-results-heading,
+.district-result-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.district-results-heading h2,
+.district-result-card-header h3 {
+  margin: 0;
+  color: #0f172a;
+}
+
+.district-results-heading p,
+.district-result-card-header p {
+  margin: 5px 0 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.district-result-card {
+  overflow: hidden;
+  border: 1px solid #dbe4ee;
+  border-radius: 10px;
+  background: white;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+}
+
+.district-result-card-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.district-result-level {
+  flex-shrink: 0;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #0e1db6;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.district-result-table-wrap {
+  overflow-x: auto;
+}
+
+.district-result-empty {
+  padding: 24px !important;
+  color: #64748b;
+  text-align: center !important;
+}
+
+.district-score-input {
+  width: 78px;
+  padding: 7px 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  color: #0f172a;
+  font: inherit;
+}
+
+.district-score-input:focus {
+  border-color: #0e1db6;
+  outline: 2px solid rgba(14, 29, 182, 0.15);
+}
+
+.district-result-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.district-promoted-label {
+  color: #15803d;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.district-demote-button {
+  padding: 6px 9px;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  background: #fff;
+  color: #b91c1c;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.district-demote-button:hover {
+  background: #fef2f2;
+}
+
+.district-section-heading h2 {
+  margin-bottom: 0.35rem;
+}
+
+.district-form-grid,
+.district-announcement-form {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1.25rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #f9fafb;
+}
+
+.district-form-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: end;
+}
+
+.district-form-grid label,
+.district-announcement-form label {
+  display: grid;
+  gap: 0.4rem;
+  color: #374151;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.district-form-grid input,
+.district-form-grid select,
+.district-announcement-form input,
+.district-announcement-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #fff;
+  color: #111827;
+  font: inherit;
+}
+
+.district-form-grid button,
+.district-announcement-form button {
+  justify-self: start;
+}
+
+.district-announcement-form {
+  max-width: 680px;
+}
+
+.district-announcement-form textarea {
+  resize: vertical;
+}
+
+.district-announcements-page {
+  width: min(100%, 1100px);
+  margin: 0 auto;
+}
+
+.district-announcements-card {
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.district-announcements-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.district-announcements-header h2 {
+  margin: 0;
+  color: #111827;
+  font-size: 18px;
+}
+
+.district-announcements-header p {
+  margin: 5px 0 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.district-announcements-list {
+  display: grid;
+  gap: 16px;
+  padding: 20px;
+}
+
+.district-announcement-item {
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.district-announcement-item:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.district-announcement-item-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.district-announcement-item-heading > span {
+  flex-shrink: 0;
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.district-announcement-title {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #0e1db6;
+  font: inherit;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+
+.district-announcement-title:hover,
+.district-announcement-title:focus-visible {
+  text-decoration: underline;
+  outline: none;
+}
+
+.district-announcement-item p {
+  margin: 8px 0 0;
+  color: #4b5563;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.district-announcement-drawer-form {
+  margin: 0;
+  border: 0;
+  background: transparent;
+}
+
+@media (max-width: 980px) {
+  .district-manager-content {
+    width: 100%;
+    margin-left: 0;
+    padding: 32px 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .district-manager-heading,
+  .district-section-heading,
+  .district-form-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .district-manager-page .stats-overview,
+  .district-manager-page .reports-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .district-home-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .district-calendar-card {
+    grid-column: auto;
+    grid-template-columns: 1fr;
+  }
+
+  .district-calendar-card .district-card-heading,
+  .calendar-grid,
+  .calendar-events {
+    grid-column: 1;
+  }
+
+  .calendar-events {
+    grid-row: auto;
+    padding: 16px 0 0;
+    border-top: 1px solid #e5e7eb;
+    border-left: 0;
+  }
+
+  .talent-chart-layout {
+    gap: 14px;
+  }
+
+  .talent-donut {
+    flex-basis: 118px;
+    width: 118px;
+    height: 118px;
+  }
+
+  .talent-donut > div {
+    width: 64px;
+    height: 64px;
+  }
+
+  .district-results-heading,
+  .district-result-card-header {
+    flex-direction: column;
+  }
+
+  .district-competition-date-grid {
+    grid-template-columns: 1fr;
+  }
+}

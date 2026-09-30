@@ -1,0 +1,1147 @@
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import * as apiService from '../services/apiService';
+import logo from '../assets/Logo1.png';
+import './SportTeacherPage.css';
+import '../styles/talentadmin.css';
+import DashboardSkeleton from '../components/DashboardSkeleton';
+
+const NAV_ITEMS = [
+  ['home', 'Home', 'This is home.'], ['schools', 'Schools', 'Here you will manage schools.'], ['users', 'Users', 'Here you will manage all system users.'], ['demography', 'Demography', 'Here you will manage the geographic hierarchy.'], ['talents', 'Talents', 'Here you will manage talents and clubs.'],
+];
+const DEMOGRAPHY_LEVELS = [
+  ['zone', 'Zone'],
+  ['region', 'Region'],
+  ['district', 'District'],
+  ['ward', 'Ward'],
+];
+
+const emptySchool = { registry_number: '', name: '', ownership_type: 'Government', country: '', zone: '', region: '', district: '', ward: '', phone: '', physical_address: '', email: '' };
+const emptyUser = { username: '', first_name: '', last_name: '', email: '', phone: '', role: 'sport_teacher', country: '', zone: '', region: '', district: '', ward: '', school: '', password: '', confirmPassword: '' };
+const USER_ROLE_OPTIONS = [
+  ['talent_admin', 'Talent Admin'],
+  ['region_manager', 'Region Manager'],
+  ['zone_manager', 'Zone Manager'],
+  ['district_manager', 'District Manager'],
+  ['ward_manager', 'Ward Manager'],
+  ['head_teacher', 'Head Teacher'],
+  ['sport_teacher', 'Sport Teacher'],
+  ['student', 'Student'],
+  ['parent', 'Parent'],
+];
+const USER_GEOGRAPHY_LEVELS = {
+  talent_admin: ['country'],
+  region_manager: ['country', 'zone', 'region'],
+  zone_manager: ['country', 'zone'],
+  district_manager: ['country', 'zone', 'region', 'district'],
+  ward_manager: ['country', 'zone', 'region', 'district', 'ward'],
+  head_teacher: ['country', 'zone', 'region', 'district', 'ward', 'school'],
+  sport_teacher: ['country', 'zone', 'region', 'district', 'ward', 'school'],
+  student: ['country', 'zone', 'region', 'district', 'ward', 'school'],
+  parent: ['country', 'zone', 'region', 'district', 'ward', 'school'],
+};
+const formatRoleLabel = (role = '') => role.split('_').map((part) => part ? part.charAt(0).toUpperCase() + part.slice(1) : '').join(' ');
+
+export default function TalentAdminPage() {
+  const { logout } = useAuth();
+  const [activeTab, setActiveTab] = useState('home');
+  const [navigationOpen, setNavigationOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [schools, setSchools] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [students, setStudents] = useState([]);
+  const [parents, setParents] = useState([]);
+  const [countries, setCountries] = useState([]);
+  const [zones, setZones] = useState([]);
+  const [regions, setRegions] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const [wards, setWards] = useState([]);
+  const [ownershipTypes, setOwnershipTypes] = useState([]);
+  const [talentCategories, setTalentCategories] = useState([]);
+  const [talents, setTalents] = useState([]);
+  const [countryClubs, setCountryClubs] = useState([]);
+  const [schoolDrawerOpen, setSchoolDrawerOpen] = useState(false);
+  const [demographyLevel, setDemographyLevel] = useState('zone');
+  const [demographyForm, setDemographyForm] = useState({ name: '', zone: '', region: '', district: '', country: '' });
+  const [demographyDrawerOpen, setDemographyDrawerOpen] = useState(false);
+  const [editingDemographyId, setEditingDemographyId] = useState(null);
+  const [talentForm, setTalentForm] = useState({ name: '', category: '', description: '' });
+  const [talentSearch, setTalentSearch] = useState('');
+  const [editingTalentId, setEditingTalentId] = useState(null);
+  const [talentDrawerOpen, setTalentDrawerOpen] = useState(false);
+  const [clubForm, setClubForm] = useState({ name: '', focus: '', description: '', country: '' });
+  const [clubSearch, setClubSearch] = useState('');
+  const [editingClubId, setEditingClubId] = useState(null);
+  const [clubDrawerOpen, setClubDrawerOpen] = useState(false);
+  const [selectedSchool, setSelectedSchool] = useState(null);
+  const [schoolForm, setSchoolForm] = useState(emptySchool);
+  const [schoolSubmitting, setSchoolSubmitting] = useState(false);
+  const [locationLoading, setLocationLoading] = useState({ country: false, zone: false, region: false, district: false, ward: false, school: false });
+  const locationLoadingTimers = useRef({});
+  const [selectedUserRole, setSelectedUserRole] = useState('all');
+  const [userSearch, setUserSearch] = useState('');
+  const [userDrawerOpen, setUserDrawerOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [userEditorMode, setUserEditorMode] = useState('add');
+  const [userForm, setUserForm] = useState(emptyUser);
+  const [userFormError, setUserFormError] = useState(null);
+  const [userSubmitting, setUserSubmitting] = useState(false);
+  const activeItem = NAV_ITEMS.find(([key]) => key === activeTab) || NAV_ITEMS[0];
+
+  const userRoleOptions = useMemo(() => USER_ROLE_OPTIONS.map(([value, label]) => ({ value, label })), []);
+
+  const filteredUsers = useMemo(() => {
+    const normalizedSearch = userSearch.trim().toLowerCase();
+    const baseUsers = selectedUserRole === 'all' ? users : users.filter((user) => user.role === selectedUserRole);
+
+    if (!normalizedSearch) return baseUsers;
+
+    return baseUsers.filter((user) => {
+      const searchableValues = [
+        getUserDisplayName(user),
+        formatRoleLabel(user.role),
+        user.email,
+        user.phone,
+        getSchoolName(user.school),
+        getUserLocationDisplay(user, user.role),
+        getParentAreaDisplay(user),
+        getParentChildrenDisplay(user),
+      ].filter(Boolean).join(' ').toLowerCase();
+      return searchableValues.includes(normalizedSearch);
+    });
+  }, [selectedUserRole, userSearch, users, students, parents, schools, countries, zones, regions, districts, wards]);
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      const [schoolsRes, usersRes, studentsRes, parentsRes, countriesRes, zonesRes, regionsRes, districtsRes, wardsRes, ownershipRes, talentCategoriesRes, talentsRes, countryClubsRes] = await Promise.all([
+        apiService.getAllSchools(), apiService.getAllUsers(), apiService.getAllStudents(), apiService.getAllParents(), apiService.getAllCountries(), apiService.getAllZones(), apiService.getAllRegions(), apiService.getAllDistricts(), apiService.getAllWards(), apiService.getSchoolOwnershipTypes(), apiService.getTalentCategories(), apiService.getTalents(), apiService.getCountryClubs(),
+      ]);
+      setSchools(schoolsRes.data.results || []); setUsers(usersRes.data.results || []); setStudents(studentsRes.data.results || []); setParents(parentsRes.data.results || []); setCountries(countriesRes.data.results || []); setZones(zonesRes.data.results || []); setRegions(regionsRes.data.results || []); setDistricts(districtsRes.data.results || []); setWards(wardsRes.data.results || []); setOwnershipTypes(ownershipRes.data.results || []); setTalentCategories(talentCategoriesRes.data.results || talentCategoriesRes.data || []); setTalents(talentsRes.data.results || []); setCountryClubs(countryClubsRes.data.results || []);
+      const defaultCountry = getDefaultCountryValue();
+      if (!demographyForm.country && defaultCountry) {
+        setDemographyForm((current) => ({ ...current, country: String(defaultCountry) }));
+      }
+      if (!clubForm.country && defaultCountry) {
+        setClubForm((current) => ({ ...current, country: String(defaultCountry) }));
+      }
+      if (!talentForm.category && (talentCategoriesRes.data.results || talentCategoriesRes.data || []).length) {
+        setTalentForm((current) => ({ ...current, category: String((talentCategoriesRes.data.results || talentCategoriesRes.data || [])[0].id) }));
+      }
+    } catch (requestError) { setError(requestError.response?.data?.detail || 'Failed to load school administration data'); } finally { setLoading(false); }
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const getName = (items, id) => items.find((item) => Number(item.id) === Number(id))?.name || '—';
+  const getLocation = (school) => {
+    const country = countries.find((item) => Number(item.id) === Number(school.country));
+    return [getName(wards, school.ward), getName(districts, school.district), getName(regions, school.region), country?.code || '—'].filter((part) => part !== '—').join(' - ') || '—';
+  };
+  const getUserDisplayName = (user) => `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.username || '—';
+  const getSchoolName = (schoolId) => schools.find((school) => Number(school.id) === Number(schoolId))?.name || '—';
+  const getCountryName = (countryId) => countries.find((country) => Number(country.id) === Number(countryId))?.name || '—';
+  const getZoneName = (zoneId) => zones.find((zone) => Number(zone.id) === Number(zoneId))?.name || '—';
+  const getRegionName = (regionId) => regions.find((region) => Number(region.id) === Number(regionId))?.name || '—';
+  const getDistrictName = (districtId) => districts.find((district) => Number(district.id) === Number(districtId))?.name || '—';
+  const getWardName = (wardId) => wards.find((ward) => Number(ward.id) === Number(wardId))?.name || '—';
+  const getUserLocationDisplay = (user, role = user?.role) => {
+    if (!user) return '—';
+    const roleKey = role || 'talent_admin';
+    const entries = {
+      talent_admin: [getCountryName(user.country)],
+      region_manager: [getRegionName(user.region), getZoneName(user.zone), getCountryName(user.country)],
+      zone_manager: [getZoneName(user.zone), getCountryName(user.country)],
+      district_manager: [getDistrictName(user.district), getRegionName(user.region), getCountryName(user.country)],
+      ward_manager: [getWardName(user.ward), getDistrictName(user.district), getCountryName(user.country)],
+      head_teacher: [getSchoolName(user.school), getRegionName(user.region), getCountryName(user.country)],
+      sport_teacher: [getSchoolName(user.school), getRegionName(user.region), getCountryName(user.country)],
+      student: [getSchoolName(user.school), getRegionName(user.region), getCountryName(user.country)],
+    };
+    const location = entries[roleKey] || [getCountryName(user.country)];
+    return location.filter((part) => part && part !== '—').join(' - ') || '—';
+  };
+  const getRoleColumnDisplay = (user) => {
+    if (!user) return '—';
+    const roleLabel = formatRoleLabel(user.role);
+    const roleName = roleLabel.replace(/\s+/g, ' ').trim();
+    switch (user.role) {
+      case 'talent_admin':
+        return `${roleName} - ${getCountryName(user.country)}`;
+      case 'zone_manager':
+        return `${roleName} - ${getZoneName(user.zone)}`;
+      case 'region_manager':
+        return `${roleName} - ${getRegionName(user.region)}`;
+      case 'student':
+        return `${roleName} - ${getSchoolName(user.school)}`;
+      case 'parent': {
+        const childNames = getParentChildrenDisplay(user);
+        return `${roleName} - ${childNames === '—' ? 'No children' : childNames}`;
+      }
+      default:
+        return roleLabel;
+    }
+  };
+  const getParentLookup = (userId) => parents.find((parent) => Number(parent.user ?? parent.user_id) === Number(userId)) || null;
+  const getParentAreaDisplay = (user) => {
+    const parentProfile = getParentLookup(user.id);
+    const childStudent = students.find((student) => Number(student.parent?.id ?? student.parent_id) === Number(parentProfile?.id));
+    const school = childStudent?.school || schools.find((school) => Number(school.id) === Number(user.school));
+    if (!school) return '—';
+    const ward = getWardName(school.ward);
+    const district = getDistrictName(school.district);
+    return [ward, district].filter((part) => part && part !== '—').join(' - ') || '—';
+  };
+  const getParentChildrenDisplay = (user) => {
+    const parentProfile = getParentLookup(user.id);
+    if (!parentProfile) return '—';
+    const children = students.filter((student) => Number(student.parent?.id ?? student.parent_id) === Number(parentProfile.id));
+    const names = children.map((student) => `${student.first_name || ''} ${student.last_name || ''}`.trim() || 'Unnamed child');
+    return names.length ? names.join(', ') : '—';
+  };
+  const getDefaultCountryValue = () => {
+    const tanzania = countries.find((country) => {
+      const label = `${country.name || ''} ${country.code || ''}`.toLowerCase();
+      return label.includes('tanzania') || country.code?.toLowerCase() === 'tz';
+    });
+    return String(tanzania?.id || '');
+  };
+  const buildEmptyUserForm = () => ({
+    ...emptyUser,
+    country: getDefaultCountryValue(),
+  });
+  const buildUserFormFromSelection = (user = null) => {
+    if (!user) return buildEmptyUserForm();
+    return {
+      username: user.username || '',
+      first_name: user.first_name || '',
+      last_name: user.last_name || '',
+      email: user.email || '',
+      phone: user.phone || '',
+      role: user.role || 'sport_teacher',
+      country: user.country ? String(user.country) : getDefaultCountryValue(),
+      zone: user.zone ? String(user.zone) : '',
+      region: user.region ? String(user.region) : '',
+      district: user.district ? String(user.district) : '',
+      ward: user.ward ? String(user.ward) : '',
+      school: user.school ? String(user.school) : '',
+      password: '',
+      confirmPassword: '',
+    };
+  };
+  const getUserGeographyLevels = (role) => USER_GEOGRAPHY_LEVELS[role] || ['country'];
+  const getVisibleUserGeography = (role) => new Set(getUserGeographyLevels(role));
+  const visibleUserGeography = useMemo(() => getVisibleUserGeography(userForm.role), [userForm.role]);
+  const defaultCountryId = useMemo(() => getDefaultCountryValue() || countries[0]?.id || '', [countries]);
+  const demographyScopedZones = useMemo(() => zones.filter((zone) => !defaultCountryId || Number(zone.country) === Number(defaultCountryId)), [zones, defaultCountryId]);
+  const demographyScopedRegions = useMemo(() => regions.filter((region) => !demographyForm.zone || Number(region.zone) === Number(demographyForm.zone)), [regions, demographyForm.zone]);
+  const demographyScopedDistricts = useMemo(() => districts.filter((district) => !demographyForm.region || Number(district.region) === Number(demographyForm.region)), [districts, demographyForm.region]);
+  const demographyScopedWards = useMemo(() => wards.filter((ward) => !demographyForm.district || Number(ward.district) === Number(demographyForm.district)), [wards, demographyForm.district]);
+  const filteredTalents = useMemo(() => {
+    const searchTerm = talentSearch.trim().toLowerCase();
+    if (!searchTerm) return talents;
+    return talents.filter((talent) => `${talent.name || ''} ${talent.category_name || ''}`.toLowerCase().includes(searchTerm));
+  }, [talentSearch, talents]);
+
+  const filteredCountryClubs = useMemo(() => {
+    const searchTerm = clubSearch.trim().toLowerCase();
+    if (!searchTerm) return countryClubs;
+    return countryClubs.filter((club) => `${club.name || ''} ${club.focus || ''}`.toLowerCase().includes(searchTerm));
+  }, [clubSearch, countryClubs]);
+
+  const getDemographyItems = () => {
+    switch (demographyLevel) {
+      case 'zone':
+        return demographyScopedZones;
+      case 'region':
+        return demographyScopedRegions;
+      case 'district':
+        return demographyScopedDistricts;
+      case 'ward':
+        return demographyScopedWards;
+      default:
+        return [];
+    }
+  };
+  const getZoneRegionsSummary = (zoneId) => {
+    const zoneRegions = regions.filter((region) => Number(region.zone) === Number(zoneId));
+    const regionNames = zoneRegions.map((region) => region.name).filter(Boolean);
+    return regionNames.length ? regionNames.join(', ') : 'No regions';
+  };
+  const handleDemographyFieldChange = (field, value) => {
+    setDemographyForm((current) => {
+      const next = { ...current, [field]: value };
+      if (field === 'zone') next.region = '';
+      if (field === 'region') next.district = '';
+      if (field === 'district') next.ward = '';
+      return next;
+    });
+  };
+  const handleDemographySubmit = async (event) => {
+    event.preventDefault();
+    const name = demographyForm.name.trim();
+    if (!name) return;
+    try {
+      const payload = { name };
+      if (demographyLevel === 'region') payload.zone = Number(demographyForm.zone || 0);
+      if (demographyLevel === 'district') payload.region = Number(demographyForm.region || 0);
+      if (demographyLevel === 'ward') payload.district = Number(demographyForm.district || 0);
+      if (!payload.zone && demographyLevel === 'region') return;
+      if (!payload.region && demographyLevel === 'district') return;
+      if (!payload.district && demographyLevel === 'ward') return;
+      if (editingDemographyId) {
+        if (demographyLevel === 'zone') await apiService.updateZone(editingDemographyId, payload);
+        if (demographyLevel === 'region') await apiService.updateRegion(editingDemographyId, payload);
+        if (demographyLevel === 'district') await apiService.updateDistrict(editingDemographyId, payload);
+        if (demographyLevel === 'ward') await apiService.updateWard(editingDemographyId, payload);
+      } else {
+        if (demographyLevel === 'zone') await apiService.createZone({ ...payload, country: Number(defaultCountryId || demographyForm.country || 0) });
+        if (demographyLevel === 'region') await apiService.createRegion(payload);
+        if (demographyLevel === 'district') await apiService.createDistrict(payload);
+        if (demographyLevel === 'ward') await apiService.createWard(payload);
+      }
+      setDemographyForm({ name: '', zone: '', region: '', district: '', country: String(defaultCountryId || '') });
+      setEditingDemographyId(null);
+      await loadData();
+    } catch (requestError) {
+      setError(requestError.response?.data?.detail || requestError.response?.data?.non_field_errors || 'Unable to save demography item.');
+    }
+  };
+  const handleDemographyEdit = (item) => {
+    setEditingDemographyId(item.id);
+    setDemographyForm({
+      name: item.name || '',
+      zone: item.zone ? String(item.zone) : '',
+      region: item.region ? String(item.region) : '',
+      district: item.district ? String(item.district) : '',
+      country: String(defaultCountryId || ''),
+    });
+  };
+  const handleDemographyDelete = async (item) => {
+    if (!window.confirm(`Delete ${item.name}?`)) return;
+    try {
+      if (demographyLevel === 'zone') await apiService.deleteZone(item.id);
+      if (demographyLevel === 'region') await apiService.deleteRegion(item.id);
+      if (demographyLevel === 'district') await apiService.deleteDistrict(item.id);
+      if (demographyLevel === 'ward') await apiService.deleteWard(item.id);
+      setDemographyDrawerOpen(false);
+      await loadData();
+    } catch (requestError) {
+      setError(requestError.response?.data?.detail || 'Unable to delete demography item.');
+    }
+  };
+  const openDemographyEditor = (item = null) => {
+    setEditingDemographyId(item?.id ?? null);
+    setDemographyForm({
+      name: item?.name || '',
+      zone: item?.zone ? String(item.zone) : '',
+      region: item?.region ? String(item.region) : '',
+      district: item?.district ? String(item.district) : '',
+      country: String(defaultCountryId || ''),
+    });
+    setDemographyDrawerOpen(true);
+  };
+  const closeDemographyEditor = () => {
+    setDemographyDrawerOpen(false);
+    setEditingDemographyId(null);
+    setDemographyForm({ name: '', zone: '', region: '', district: '', country: String(defaultCountryId || '') });
+  };
+  const openTalentEditor = (item = null) => {
+    setEditingTalentId(item?.id ?? null);
+    setTalentForm({
+      name: item?.name || '',
+      category: item?.category ? String(item.category) : (talentCategories[0]?.id ? String(talentCategories[0].id) : ''),
+      description: item?.description || '',
+    });
+    setTalentDrawerOpen(true);
+  };
+  const closeTalentEditor = () => {
+    setTalentDrawerOpen(false);
+    setEditingTalentId(null);
+    setTalentForm({ name: '', category: talentCategories[0]?.id ? String(talentCategories[0].id) : '', description: '' });
+  };
+  const handleTalentSubmit = async (event) => {
+    event.preventDefault();
+    if (!talentForm.name.trim()) return;
+    try {
+      if (editingTalentId) {
+        await apiService.updateTalent(editingTalentId, talentForm);
+      } else {
+        await apiService.createTalent(talentForm);
+      }
+      closeTalentEditor();
+      await loadData();
+    } catch (requestError) {
+      setError(requestError.response?.data?.detail || requestError.response?.data?.name || 'Unable to save talent.');
+    }
+  };
+  const handleTalentDelete = async (item) => {
+    if (!window.confirm(`Delete ${item.name}?`)) return;
+    try {
+      await apiService.deleteTalent(item.id);
+      closeTalentEditor();
+      await loadData();
+    } catch (requestError) {
+      setError(requestError.response?.data?.detail || 'Unable to delete talent.');
+    }
+  };
+  const openClubEditor = (item = null) => {
+    setEditingClubId(item?.id ?? null);
+    setClubForm({
+      name: item?.name || '',
+      focus: item?.focus || '',
+      description: item?.description || '',
+      country: String(item?.country || defaultCountryId || ''),
+    });
+    setClubDrawerOpen(true);
+  };
+  const closeClubEditor = () => {
+    setClubDrawerOpen(false);
+    setEditingClubId(null);
+    setClubForm({ name: '', focus: '', description: '', country: String(defaultCountryId || '') });
+  };
+  const handleClubSubmit = async (event) => {
+    event.preventDefault();
+    if (!clubForm.name.trim()) return;
+    try {
+      const payload = { ...clubForm, country: Number(clubForm.country || defaultCountryId || 0) };
+      if (editingClubId) {
+        await apiService.updateCountryClub(editingClubId, payload);
+      } else {
+        await apiService.createCountryClub(payload);
+      }
+      closeClubEditor();
+      await loadData();
+    } catch (requestError) {
+      setError(requestError.response?.data?.detail || requestError.response?.data?.name || 'Unable to save club.');
+    }
+  };
+  const handleClubDelete = async (item) => {
+    if (!window.confirm(`Delete ${item.name}?`)) return;
+    try {
+      await apiService.deleteCountryClub(item.id);
+      closeClubEditor();
+      await loadData();
+    } catch (requestError) {
+      setError(requestError.response?.data?.detail || 'Unable to delete club.');
+    }
+  };
+  const triggerLocationLoading = (field) => {
+    const nextFieldMap = {
+      country: 'zone',
+      zone: 'region',
+      region: 'district',
+      district: 'ward',
+      ward: 'school',
+    };
+    const nextField = nextFieldMap[field];
+    if (!nextField) return;
+    setLocationLoading((current) => ({ ...current, [nextField]: true }));
+    if (locationLoadingTimers.current[nextField]) {
+      window.clearTimeout(locationLoadingTimers.current[nextField]);
+    }
+    locationLoadingTimers.current[nextField] = window.setTimeout(() => {
+      setLocationLoading((current) => ({ ...current, [nextField]: false }));
+    }, 250);
+  };
+  const updateUserLocation = (field, value) => {
+    triggerLocationLoading(field);
+    setUserForm((current) => {
+      const next = { ...current, [field]: value };
+      if (field === 'country') Object.assign(next, { zone: '', region: '', district: '', ward: '', school: '' });
+      if (field === 'zone') Object.assign(next, { region: '', district: '', ward: '', school: '' });
+      if (field === 'region') Object.assign(next, { district: '', ward: '', school: '' });
+      if (field === 'district') Object.assign(next, { ward: '', school: '' });
+      if (field === 'ward') next.school = '';
+      return next;
+    });
+  };
+  const handleUserRoleChange = (role) => setUserForm((current) => {
+    const next = { ...current, role };
+    const allowed = new Set(getUserGeographyLevels(role));
+    ['country', 'zone', 'region', 'district', 'ward', 'school'].forEach((field) => {
+      if (!allowed.has(field)) next[field] = '';
+    });
+    return next;
+  });
+  const filteredUserZones = zones.filter((zone) => !userForm.country || Number(zone.country) === Number(userForm.country));
+  const filteredUserRegions = regions.filter((region) => !userForm.zone || Number(region.zone) === Number(userForm.zone));
+  const filteredUserDistricts = districts.filter((district) => !userForm.region || Number(district.region) === Number(userForm.region));
+  const filteredUserWards = wards.filter((ward) => !userForm.district || Number(ward.district) === Number(userForm.district));
+  const filteredUserSchools = schools.filter((school) => {
+    if (userForm.country && Number(school.country) !== Number(userForm.country)) return false;
+    if (userForm.zone && Number(school.zone) !== Number(userForm.zone)) return false;
+    if (userForm.region && Number(school.region) !== Number(userForm.region)) return false;
+    if (userForm.district && Number(school.district) !== Number(userForm.district)) return false;
+    if (userForm.ward && Number(school.ward) !== Number(userForm.ward)) return false;
+    return true;
+  });
+
+  const openSchoolEditor = (school = null) => {
+    setSelectedSchool(school);
+    setSchoolForm(school ? {
+      ...emptySchool,
+      ...school,
+      country: String(school.country || ''),
+      zone: String(school.zone || ''),
+      region: String(school.region || ''),
+      district: String(school.district || ''),
+      ward: String(school.ward || ''),
+    } : emptySchool);
+    setSchoolDrawerOpen(true);
+  };
+  const closeSchoolEditor = () => { setSchoolDrawerOpen(false); setSelectedSchool(null); setSchoolForm(emptySchool); };
+  const updateField = (field, value) => {
+    triggerLocationLoading(field);
+    setSchoolForm((current) => {
+      const next = { ...current, [field]: value };
+      if (field === 'country') Object.assign(next, { zone: '', region: '', district: '', ward: '' });
+      if (field === 'zone') Object.assign(next, { region: '', district: '', ward: '' });
+      if (field === 'region') Object.assign(next, { district: '', ward: '' });
+      if (field === 'district') next.ward = '';
+      return next;
+    });
+  };
+
+  const filteredZones = zones.filter((zone) => !schoolForm.country || Number(zone.country) === Number(schoolForm.country));
+  const filteredRegions = regions.filter((region) => !schoolForm.zone || Number(region.zone) === Number(schoolForm.zone));
+  const filteredDistricts = districts.filter((district) => !schoolForm.region || Number(district.region) === Number(schoolForm.region));
+  const filteredWards = wards.filter((ward) => !schoolForm.district || Number(ward.district) === Number(schoolForm.district));
+
+  const saveSchool = async (event) => {
+    event.preventDefault(); setSchoolSubmitting(true); setError(null);
+    const editableFields = ['registry_number', 'name', 'country', 'zone', 'region', 'district', 'ward', 'phone', 'physical_address'];
+    if (!selectedSchool || schoolForm.ownership_type !== selectedSchool.ownership_type) editableFields.splice(2, 0, 'ownership_type');
+    const schoolFields = Object.fromEntries(editableFields.map((field) => [field, schoolForm[field] ?? '']));
+    const payload = { ...schoolFields, country: Number(schoolForm.country), zone: Number(schoolForm.zone), region: Number(schoolForm.region), district: Number(schoolForm.district), ward: Number(schoolForm.ward) };
+    try {
+      const response = selectedSchool ? await apiService.patchSchool(selectedSchool.id, payload) : await apiService.createSchool(payload);
+      setSchools((current) => selectedSchool ? current.map((school) => school.id === selectedSchool.id ? response.data : school) : [...current, response.data]); closeSchoolEditor();
+    } catch (requestError) { const details = requestError.response?.data; const fieldError = details && Object.values(details).flat?.().find(Boolean); setError(fieldError || details?.detail || details?.non_field_errors?.[0] || 'Failed to save school'); } finally { setSchoolSubmitting(false); }
+  };
+
+  const openUserEditor = (user = null) => {
+    setSelectedUser(user);
+    setUserEditorMode(user ? 'edit' : 'add');
+    setUserForm(buildUserFormFromSelection(user));
+    setUserFormError(null);
+    setUserDrawerOpen(true);
+  };
+  const closeUserEditor = () => {
+    setUserDrawerOpen(false);
+    setSelectedUser(null);
+    setUserEditorMode('add');
+    setUserForm(buildEmptyUserForm());
+    setUserFormError(null);
+  };
+  const saveUser = async (event) => {
+    event.preventDefault(); setUserSubmitting(true); setError(null); setUserFormError(null);
+    const selectedGeography = ['country', 'zone', 'region', 'district', 'ward', 'school'].reduce((result, field) => {
+      if (userForm[field] !== '' && userForm[field] !== null && userForm[field] !== undefined) {
+        result[field] = Number(userForm[field]);
+      }
+      return result;
+    }, {});
+    const payload = {
+      username: userForm.username,
+      first_name: userForm.first_name,
+      last_name: userForm.last_name,
+      email: userForm.email || '',
+      phone: (userForm.phone || '').replace(/\s+/g, ''),
+      role: userForm.role,
+      ...selectedGeography,
+    };
+
+    if (!payload.username || !payload.first_name || !payload.last_name || !payload.role) {
+      setError('Please complete all required user fields.');
+      setUserSubmitting(false);
+      return;
+    }
+
+    if (userEditorMode === 'add' && !userForm.password) {
+      setError('Password is required when creating a user.');
+      setUserSubmitting(false);
+      return;
+    }
+
+    if (userForm.password && userForm.password !== userForm.confirmPassword) {
+      setUserFormError('Passwords do not match.');
+      setUserSubmitting(false);
+      return;
+    }
+
+    if (userForm.password) {
+      payload.password = userForm.password;
+    }
+
+    try {
+      let response;
+      if (userEditorMode === 'edit' && selectedUser) {
+        response = await apiService.updateUser(selectedUser.id, payload);
+        setUsers((current) => current.map((user) => user.id === selectedUser.id ? response.data : user));
+      } else {
+        response = await apiService.createUser(payload);
+        setUsers((current) => [response.data, ...current]);
+      }
+      closeUserEditor();
+    } catch (requestError) {
+      const details = requestError.response?.data;
+      const fieldError = details && Object.values(details).flat?.().find(Boolean);
+      setError(fieldError || details?.detail || details?.non_field_errors?.[0] || `Failed to ${userEditorMode === 'edit' ? 'update' : 'create'} user`);
+    } finally { setUserSubmitting(false); }
+  };
+
+  const deleteUser = async () => {
+    if (!selectedUser || !window.confirm(`Delete ${getUserDisplayName(selectedUser)}?`)) return;
+    setUserSubmitting(true);
+    setError(null);
+    try {
+      await apiService.deleteUser(selectedUser.id);
+      setUsers((current) => current.filter((user) => user.id !== selectedUser.id));
+      closeUserEditor();
+    } catch (requestError) {
+      const details = requestError.response?.data;
+      const protectedObjects = details?.protected_objects?.length
+        ? ` Protected records: ${details.protected_objects.join(', ')}`
+        : '';
+      setError(`${details?.detail || 'Failed to delete user'}${protectedObjects}`);
+    } finally {
+      setUserSubmitting(false);
+    }
+  };
+
+  const deleteSchool = async () => {
+    if (!selectedSchool || !window.confirm(`Delete ${selectedSchool.name}?`)) return;
+    setSchoolSubmitting(true);
+    try { await apiService.deleteSchool(selectedSchool.id); setSchools((current) => current.filter((school) => school.id !== selectedSchool.id)); closeSchoolEditor(); } catch (requestError) { setError(requestError.response?.data?.detail || 'Failed to delete school'); } finally { setSchoolSubmitting(false); }
+  };
+
+  const locationField = (label, field, options, disabled = false) => (
+    <label data-label={label}>
+      <div className="talent-admin-select-wrap">
+        <select required value={schoolForm[field]} disabled={disabled} onChange={(event) => updateField(field, event.target.value)}>
+          <option value="">Select {label.toLowerCase()}</option>
+          {options.map((option) => <option key={option.id} value={option.id}>{option.name}</option>)}
+        </select>
+        {locationLoading[field] && <span className="talent-admin-select-spinner" aria-label={`${label} is loading`} />}
+      </div>
+    </label>
+  );
+  const userLocationField = (label, field, options, disabled = false) => (
+    <label data-label={label}>
+      <div className="talent-admin-select-wrap">
+        <select value={userForm[field] || ''} required={visibleUserGeography.has(field)} disabled={disabled || !visibleUserGeography.has(field)} onChange={(event) => updateUserLocation(field, event.target.value)}>
+          <option value="">Select {label.toLowerCase()}</option>
+          {options.map((option) => <option key={option.id} value={option.id}>{option.name}</option>)}
+        </select>
+        {locationLoading[field] && <span className="talent-admin-select-spinner" aria-label={`${label} is loading`} />}
+      </div>
+    </label>
+  );
+  const userLocationRows = [
+    ['country', 'zone'],
+    ['region', 'district'],
+    ['ward', 'school'],
+  ];
+  const floatingInput = (label, field, props = {}) => <label className="talent-admin-floating-field"><input placeholder=" " value={schoolForm[field] || ''} onChange={(event) => updateField(field, event.target.value)} {...props} /><span>{label}</span></label>;
+  const floatingTextarea = (label, field, props = {}) => <label className="talent-admin-floating-field"><textarea placeholder=" " value={schoolForm[field] || ''} onChange={(event) => updateField(field, event.target.value)} {...props} /><span>{label}</span></label>;
+
+  const homeSummary = [
+    { label: 'Schools', value: schools.length, color: '#2563eb' },
+    { label: 'Users', value: users.length, color: '#0ea5e9' },
+    { label: 'Students', value: students.length, color: '#8b5cf6' },
+    { label: 'Talents', value: talents.length, color: '#22c55e' },
+    { label: 'Clubs', value: countryClubs.length, color: '#f59e0b' },
+  ];
+
+  const recentSchools = [...schools].sort((first, second) => Number(second.id || 0) - Number(first.id || 0)).slice(0, 4);
+  const recentUsers = [...users].sort((first, second) => Number(second.id || 0) - Number(first.id || 0)).slice(0, 4);
+  const geographicSummary = [
+    { label: 'Zones', value: zones.length },
+    { label: 'Regions', value: regions.length },
+    { label: 'Districts', value: districts.length },
+    { label: 'Wards', value: wards.length },
+  ];
+
+  const renderHomeView = () => (
+    <div className="district-home-grid">
+      <section className="district-home-card talent-card">
+        <div className="district-card-heading">
+          <div>
+            <h2>Talent administration overview</h2>
+            <p>System health across schools, users, and talent records</p>
+          </div>
+          <span className="district-card-kicker">{getCountryName(defaultCountryId) || 'System'}</span>
+        </div>
+        <div className="talent-chart-layout">
+          <div
+            className="talent-donut"
+            style={{
+              background: `conic-gradient(#0e1db6 0 ${Math.min(100, (schools.length / Math.max(1, homeSummary.reduce((total, item) => total + item.value, 0))) * 100)}%, #60a5fa 0 58%, #8b5cf6 0 82%, #22c55e 0 100%)`,
+            }}
+            aria-label="Talent admin overview chart"
+          >
+            <div />
+          </div>
+          <div className="talent-legend">
+            {homeSummary.map((item) => (
+              <div className="talent-legend-row" key={item.label}>
+                <span className="legend-dot" style={{ background: item.color }} />
+                <span>{item.label}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="district-home-card">
+        <div className="district-card-heading">
+          <div>
+            <h2>Geographic coverage</h2>
+            <p>Current hierarchy setup for the national program</p>
+          </div>
+          <span className="district-card-kicker">{zones.length + regions.length + districts.length + wards.length} nodes</span>
+        </div>
+        <div className="school-ranking">
+          {geographicSummary.map((item) => (
+            <div className="school-ranking-row" key={item.label}>
+              <span className="school-rank">{item.value}</span>
+              <div className="school-ranking-name">
+                <strong>{item.label}</strong>
+                <small>Registered in the current database</small>
+              </div>
+              <b>{item.value}</b>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="district-home-card">
+        <div className="district-card-heading">
+          <div>
+            <h2>Recent schools</h2>
+            <p>Newest institutions added to the system</p>
+          </div>
+          <button type="button" className="district-text-button" onClick={() => setActiveTab('schools')}>View all</button>
+        </div>
+        <div className="recent-announcements">
+          {recentSchools.length ? recentSchools.map((school) => (
+            <div className="recent-announcement-row" key={school.id}>
+              <div>
+                <strong>{school.name}</strong>
+                <small>{school.registry_number || 'No registry number'} · {getLocation(school)}</small>
+              </div>
+            </div>
+          )) : <p className="district-empty-state">No schools available.</p>}
+        </div>
+      </section>
+
+      <section className="district-home-card">
+        <div className="district-card-heading">
+          <div>
+            <h2>Recent users</h2>
+            <p>Latest accounts created across all roles</p>
+          </div>
+          <button type="button" className="district-text-button" onClick={() => setActiveTab('users')}>Manage users</button>
+        </div>
+        <div className="recent-announcements">
+          {recentUsers.length ? recentUsers.map((user) => (
+            <div className="recent-announcement-row" key={user.id}>
+              <div>
+                <strong>{getUserDisplayName(user)}</strong>
+                <small>{user.username} · {formatRoleLabel(user.role)}</small>
+              </div>
+            </div>
+          )) : <p className="district-empty-state">No users available.</p>}
+        </div>
+      </section>
+
+      <section className="district-home-card district-calendar-card">
+        <div className="district-card-heading">
+          <div>
+            <h2>Management quick view</h2>
+            <p>Core admin areas to monitor every day</p>
+          </div>
+          <span className="district-card-kicker">Focus</span>
+        </div>
+        <div className="realm-home-quicksets">
+          <div className="talent-admin-quick-link" onClick={() => setActiveTab('schools')} role="button" tabIndex={0} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setActiveTab('schools'); } }}>
+            <strong>Schools</strong>
+            <span>{schools.length} registered</span>
+          </div>
+          <div className="talent-admin-quick-link" onClick={() => setActiveTab('users')} role="button" tabIndex={0} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setActiveTab('users'); } }}>
+            <strong>Users</strong>
+            <span>{users.length} active accounts</span>
+          </div>
+          <div className="talent-admin-quick-link" onClick={() => setActiveTab('demography')} role="button" tabIndex={0} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setActiveTab('demography'); } }}>
+            <strong>Demography</strong>
+            <span>{zones.length} zones mapped</span>
+          </div>
+          <div className="talent-admin-quick-link" onClick={() => setActiveTab('talents')} role="button" tabIndex={0} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setActiveTab('talents'); } }}>
+            <strong>Talents & clubs</strong>
+            <span>{talents.length} talents · {countryClubs.length} clubs</span>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+
+  return <div className="sport-teacher-page talent-admin-page">
+    <header className="sport-teacher-app-bar"><div className="sport-teacher-brand"><img src={logo} alt="Talanta logo" /><span>Talanta Management System</span></div><button type="button" className="sport-teacher-navigation-toggle" onClick={() => setNavigationOpen((open) => !open)} aria-label="Open navigation menu" aria-expanded={navigationOpen}><span /><span /><span /></button></header>
+    <aside className={`sport-teacher-navigation ${navigationOpen ? 'is-open' : ''}`}><div className="sport-teacher-navigation-heading">Talent Administration</div>{NAV_ITEMS.map(([key, label]) => <button type="button" key={key} className={activeTab === key ? 'active' : ''} onClick={() => { setActiveTab(key); setNavigationOpen(false); }}>{label}</button>)}<button type="button" className="sport-teacher-logout-button" onClick={logout}>Logout</button></aside>
+    <main className="sport-teacher-prototype-content talent-admin-content">{error && <div className="talent-admin-alert">{error}<button type="button" onClick={() => setError(null)} aria-label="Dismiss error">&times;</button></div>}{loading ? <DashboardSkeleton label="Loading talent administration" /> : activeTab === 'home' ? renderHomeView() : activeTab === 'schools' ? <section className="talent-admin-table-card"><div className="talent-admin-table-header"><div><h1>Schools</h1></div><button type="button" className="district-primary-button talent-admin-add-school-button" onClick={() => openSchoolEditor()}>Add school</button></div><div className="talent-admin-table-wrap"><table className="talent-admin-table"><thead><tr><th>Reg.No</th><th>School Name</th><th>Location</th><th>Phone</th><th>Physical address</th></tr></thead><tbody>{schools.map((school) => <tr key={school.id}><td><button type="button" className="talent-admin-link-button" onClick={() => openSchoolEditor(school)}>{school.registry_number}</button></td><td>{school.name}</td><td>{getLocation(school)}</td><td>{school.phone || '?'}</td><td>{school.physical_address || '?'}</td></tr>)}{!schools.length && <tr><td colSpan="5" className="talent-admin-empty">No schools found.</td></tr>}</tbody></table></div></section> : activeTab === 'users' ? (
+      <>
+        <div className="talent-admin-user-tools">
+          <div className="talent-admin-role-tabs-scroll">
+            <div className="talent-admin-role-tabs" role="tablist" aria-label="User roles">
+              <button type="button" className={selectedUserRole === 'all' ? 'talent-admin-role-tab is-active' : 'talent-admin-role-tab'} onClick={() => setSelectedUserRole('all')} role="tab" aria-selected={selectedUserRole === 'all'}>All</button>
+              {userRoleOptions.map((role) => (
+                <button type="button" key={role.value} className={selectedUserRole === role.value ? 'talent-admin-role-tab is-active' : 'talent-admin-role-tab'} onClick={() => setSelectedUserRole(role.value)} role="tab" aria-selected={selectedUserRole === role.value}>{role.label}</button>
+              ))}
+            </div>
+          </div>
+          <div className="talent-admin-user-actions">
+            <label className="talent-admin-filter-field talent-admin-search-field">
+              <input type="search" value={userSearch} onChange={(event) => setUserSearch(event.target.value)} placeholder="Search users" />
+            </label>
+            <button type="button" className="district-primary-button talent-admin-add-user-button" onClick={() => openUserEditor()}>Add user</button>
+          </div>
+        </div>
+        <section className="talent-admin-table-card">
+          <div className="talent-admin-table-wrap">
+            <table className="talent-admin-table">
+              <thead>
+                <tr>
+                  <th>Username</th>
+                  <th>Full Name</th>
+                  {selectedUserRole === 'all' ? <th>Role</th> : selectedUserRole === 'parent' ? <th>Area</th> : <th>Location</th>}
+                  {selectedUserRole === 'parent' ? <th>Children</th> : <th>Email</th>}
+                  <th>{selectedUserRole === 'parent' ? 'Phone' : 'Phone'}</th>
+                </tr>
+              </thead>
+              <tbody>{filteredUsers.map((user) => {
+                const isParentTab = selectedUserRole === 'parent';
+                const isAllTab = selectedUserRole === 'all';
+                return <tr key={user.id}>
+                  <td><button type="button" className="talent-admin-link-button" onClick={() => openUserEditor(user)}>{user.username || '—'}</button></td>
+                  <td>{getUserDisplayName(user)}</td>
+                  {isAllTab ? <td>{getRoleColumnDisplay(user)}</td> : isParentTab ? <td>{getParentAreaDisplay(user)}</td> : <td>{getUserLocationDisplay(user, user.role)}</td>}
+                  {isParentTab ? <td>{getParentChildrenDisplay(user)}</td> : <td>{user.email || '?'}</td>}
+                  <td>{user.phone || '?'}</td>
+                </tr>;
+              })}{!filteredUsers.length && <tr><td colSpan={selectedUserRole === 'parent' ? 5 : 5} className="talent-admin-empty">No users found.</td></tr>}</tbody>
+            </table>
+          </div>
+        </section>
+        {userDrawerOpen && <><button type="button" className="sport-teacher-drawer-backdrop" aria-label="Close user form" onClick={closeUserEditor} /><aside className="sport-teacher-search-drawer sport-teacher-registration-drawer talent-admin-school-drawer" aria-label="User editor"><div className="sport-teacher-search-drawer-header"><h2>{userEditorMode === 'edit' ? 'Edit user' : 'Add user'}</h2><button type="button" onClick={closeUserEditor} aria-label="Close user form">&times;</button></div><form onSubmit={saveUser} className="sport-teacher-profile-form"><div className="sport-teacher-registration-form-grid"><label data-label="Username *"><input required placeholder="e.g. jdoe" value={userForm.username} onChange={(event) => setUserForm((current) => ({ ...current, username: event.target.value }))} /></label><label data-label="Email"><input type="email" placeholder="e.g. user@example.com" value={userForm.email} onChange={(event) => setUserForm((current) => ({ ...current, email: event.target.value }))} /></label></div><div className="sport-teacher-registration-form-grid"><label data-label="First name *"><input required placeholder="e.g. John" value={userForm.first_name} onChange={(event) => setUserForm((current) => ({ ...current, first_name: event.target.value }))} /></label><label data-label="Last name *"><input required placeholder="e.g. Doe" value={userForm.last_name} onChange={(event) => setUserForm((current) => ({ ...current, last_name: event.target.value }))} /></label></div><div className="sport-teacher-registration-form-grid"><label data-label="Role"><select value={userForm.role} onChange={(event) => handleUserRoleChange(event.target.value)}>{USER_ROLE_OPTIONS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label><label data-label="Phone"><input type="tel" placeholder="e.g. +255 712 345 678" value={userForm.phone || ''} onChange={(event) => setUserForm((current) => ({ ...current, phone: event.target.value }))} /></label></div>{userLocationRows.map(([firstField, secondField]) => {
+          const fieldConfig = {
+            country: ['Country', countries],
+            zone: ['Zone', filteredUserZones],
+            region: ['Region', filteredUserRegions],
+            district: ['District', filteredUserDistricts],
+            ward: ['Ward', filteredUserWards],
+            school: ['School', filteredUserSchools],
+          };
+          const rowFields = [];
+
+          if (visibleUserGeography.has(firstField)) {
+            const [label, options] = fieldConfig[firstField];
+            rowFields.push(userLocationField(label, firstField, options, !visibleUserGeography.has(firstField)));
+          }
+
+          if (visibleUserGeography.has(secondField)) {
+            const [label, options] = fieldConfig[secondField];
+            rowFields.push(userLocationField(label, secondField, options, !visibleUserGeography.has(secondField)));
+          }
+
+          if (!rowFields.length) return null;
+          return <div key={`location-row-${firstField}-${secondField}`} className="sport-teacher-registration-form-grid">{rowFields}</div>;
+        })}<div className="sport-teacher-registration-form-grid"><label data-label={userEditorMode === 'edit' ? 'Password' : 'Password *'}><input type="password" placeholder="Min 8 characters" required={userEditorMode !== 'edit'} value={userForm.password} onChange={(event) => setUserForm((current) => ({ ...current, password: event.target.value }))} /></label><label data-label="Confirm password"><input type="password" placeholder="Re-enter password" required={Boolean(userForm.password)} value={userForm.confirmPassword || ''} onChange={(event) => { setUserFormError(null); setUserForm((current) => ({ ...current, confirmPassword: event.target.value })); }} /></label></div>{userFormError && <div className="talent-admin-user-form-error" role="alert">{userFormError}</div>}<div className="sport-teacher-registration-form-grid">{userEditorMode === 'edit' ? <button type="button" className="talent-admin-delete-button" onClick={deleteUser} disabled={userSubmitting}>Delete user</button> : <button type="button" className="sport-teacher-secondary-button" onClick={closeUserEditor}>Cancel</button>}<button type="submit" className="district-primary-button" disabled={userSubmitting}>{userSubmitting ? 'Saving...' : userEditorMode === 'edit' ? 'Update user' : 'Create user'}</button></div></form></aside></>}</>
+    ) : activeTab === 'demography' ? (
+      <>
+        <div className="talent-admin-user-tools">
+          <div className="talent-admin-role-tabs-scroll">
+            <div className="talent-admin-role-tabs" role="tablist" aria-label="Demography levels">
+              {DEMOGRAPHY_LEVELS.map(([value, label]) => (
+                <button
+                  type="button"
+                  key={value}
+                  className={demographyLevel === value ? 'talent-admin-role-tab is-active' : 'talent-admin-role-tab'}
+                  onClick={() => setDemographyLevel(value)}
+                  role="tab"
+                  aria-selected={demographyLevel === value}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <button type="button" className="district-primary-button talent-admin-add-user-button" onClick={() => openDemographyEditor()}>
+            Add {DEMOGRAPHY_LEVELS.find(([value]) => value === demographyLevel)?.[1]}
+          </button>
+        </div>
+        <section className="talent-admin-table-card">
+          <div className="talent-admin-table-header">
+            <div>
+              <h1>{DEMOGRAPHY_LEVELS.find(([value]) => value === demographyLevel)?.[1]}s</h1>
+              <p>Manage the geographic hierarchy for {getCountryName(defaultCountryId) || 'the current country'}.</p>
+            </div>
+          </div>
+          <div className="talent-admin-table-wrap">
+            <table className="talent-admin-table">
+              <thead>
+                <tr>
+                  {demographyLevel === 'zone' && <><th>Zone</th><th>Country</th><th>Regions</th></>}
+                  {demographyLevel === 'region' && <><th>Region</th><th>Zone</th><th>Country</th></>}
+                  {demographyLevel === 'district' && <><th>District</th><th>Region</th><th>Zone</th></>}
+                  {demographyLevel === 'ward' && <><th>Ward</th><th>District</th><th>Region</th></>}
+                </tr>
+              </thead>
+              <tbody>
+                {getDemographyItems().length ? getDemographyItems().map((item) => (
+                  <tr key={item.id} onClick={() => openDemographyEditor(item)} style={{ cursor: 'pointer' }}>
+                    {demographyLevel === 'zone' && (
+                      <>
+                        <td>{item.name}</td>
+                        <td>{getCountryName(item.country)}</td>
+                        <td>{getZoneRegionsSummary(item.id)}</td>
+                      </>
+                    )}
+                    {demographyLevel === 'region' && (
+                      <>
+                        <td>{item.name}</td>
+                        <td>{getZoneName(item.zone)}</td>
+                        <td>{getCountryName(zones.find((zone) => Number(zone.id) === Number(item.zone))?.country)}</td>
+                      </>
+                    )}
+                    {demographyLevel === 'district' && (
+                      <>
+                        <td>{item.name}</td>
+                        <td>{getRegionName(item.region)}</td>
+                        <td>{getZoneName(regions.find((region) => Number(region.id) === Number(item.region))?.zone)}</td>
+                      </>
+                    )}
+                    {demographyLevel === 'ward' && (
+                      <>
+                        <td>{item.name}</td>
+                        <td>{getDistrictName(item.district)}</td>
+                        <td>{getRegionName(districts.find((district) => Number(district.id) === Number(item.district))?.region)}</td>
+                      </>
+                    )}
+                  </tr>
+                )) : <tr><td colSpan="3" className="talent-admin-empty">No {demographyLevel} entries found.</td></tr>}
+              </tbody>
+            </table>
+          </div>
+        </section>
+        {demographyDrawerOpen && (
+          <>
+            <button type="button" className="sport-teacher-drawer-backdrop" aria-label="Close demography form" onClick={closeDemographyEditor} />
+            <aside className="sport-teacher-search-drawer sport-teacher-registration-drawer talent-admin-school-drawer" aria-label="Demography editor">
+              <div className="sport-teacher-search-drawer-header">
+                <h2>{editingDemographyId ? 'Edit' : 'Add'} {DEMOGRAPHY_LEVELS.find(([value]) => value === demographyLevel)?.[1]}</h2>
+                <button type="button" onClick={closeDemographyEditor} aria-label="Close demography form">&times;</button>
+              </div>
+              <form onSubmit={handleDemographySubmit} className="sport-teacher-profile-form">
+                {demographyLevel === 'zone' && (
+                  <div className="talent-admin-demography-inline-form">
+                    <label className="talent-admin-demography-inline-field" data-label="Zone name">
+                      <input value={demographyForm.name} onChange={(event) => setDemographyForm((current) => ({ ...current, name: event.target.value }))} placeholder="e.g. Blue Coast" />
+                    </label>
+                    <button type="submit" className="district-primary-button talent-admin-compact-submit talent-admin-demography-inline-button">
+                      {editingDemographyId ? 'Update' : 'Add zone'}
+                    </button>
+                  </div>
+                )}
+                {demographyLevel === 'region' && (
+                  <>
+                    <div className="sport-teacher-registration-form-grid">
+                      <label data-label="Zone"><select value={demographyForm.zone} onChange={(event) => handleDemographyFieldChange('zone', event.target.value)}><option value="">Select zone</option>{demographyScopedZones.map((zone) => <option key={zone.id} value={zone.id}>{zone.name}</option>)}</select></label>
+                    </div>
+                    <div className="sport-teacher-registration-form-grid">
+                      <label data-label="Region name"><input value={demographyForm.name} onChange={(event) => setDemographyForm((current) => ({ ...current, name: event.target.value }))} placeholder="e.g. Moshi Rural" /></label>
+                    </div>
+                  </>
+                )}
+                {demographyLevel === 'district' && (
+                  <>
+                    <div className="sport-teacher-registration-form-grid">
+                      <label data-label="Region"><select value={demographyForm.region} onChange={(event) => handleDemographyFieldChange('region', event.target.value)}><option value="">Select region</option>{demographyScopedRegions.map((region) => <option key={region.id} value={region.id}>{region.name}</option>)}</select></label>
+                    </div>
+                    <div className="sport-teacher-registration-form-grid">
+                      <label data-label="District name"><input value={demographyForm.name} onChange={(event) => setDemographyForm((current) => ({ ...current, name: event.target.value }))} placeholder="e.g. Moshi Urban" /></label>
+                    </div>
+                  </>
+                )}
+                {demographyLevel === 'ward' && (
+                  <>
+                    <div className="sport-teacher-registration-form-grid">
+                      <label data-label="District"><select value={demographyForm.district} onChange={(event) => handleDemographyFieldChange('district', event.target.value)}><option value="">Select district</option>{demographyScopedDistricts.map((district) => <option key={district.id} value={district.id}>{district.name}</option>)}</select></label>
+                    </div>
+                    <div className="sport-teacher-registration-form-grid">
+                      <label data-label="Ward name"><input value={demographyForm.name} onChange={(event) => setDemographyForm((current) => ({ ...current, name: event.target.value }))} placeholder="e.g. Kimochi" /></label>
+                    </div>
+                  </>
+                )}
+                {demographyLevel !== 'zone' && (
+                  <div className="sport-teacher-registration-form-grid talent-admin-drawer-actions talent-admin-demography-actions">
+                    {editingDemographyId && (
+                      <button type="button" className="talent-admin-delete-button" onClick={() => handleDemographyDelete(getDemographyItems().find((item) => item.id === editingDemographyId))}>Delete</button>
+                    )}
+                    <button type="submit" className="district-primary-button talent-admin-compact-submit">
+                      {editingDemographyId ? `Update ${DEMOGRAPHY_LEVELS.find(([value]) => value === demographyLevel)?.[1]}` : `Add ${DEMOGRAPHY_LEVELS.find(([value]) => value === demographyLevel)?.[1]}`}
+                    </button>
+                  </div>
+                )}
+                {demographyLevel === 'zone' && editingDemographyId && (
+                  <div className="sport-teacher-registration-form-grid talent-admin-drawer-actions talent-admin-demography-actions">
+                    <button type="button" className="talent-admin-delete-button" onClick={() => handleDemographyDelete(getDemographyItems().find((item) => item.id === editingDemographyId))}>Delete</button>
+                  </div>
+                )}
+              </form>
+            </aside>
+          </>
+        )}
+      </>
+    ) : activeTab === 'talents' ? (
+      <section className="talent-admin-table-card">
+        <div className="talent-admin-table-header">
+          <div>
+            <h1>Talents & Clubs</h1>
+            <p>Manage all talent categories and the country club list.</p>
+          </div>
+        </div>
+
+        <div className="talent-admin-demography-layout talent-admin-combined-layout">
+          <div className="talent-admin-card talent-admin-list-card">
+            <div className="talent-admin-card-header-row">
+              <h3>Talents</h3>
+              <div className="talent-admin-card-header-actions">
+                <label className="talent-admin-inline-search">
+                  <input type="search" value={talentSearch} onChange={(event) => setTalentSearch(event.target.value)} placeholder="Search talents" aria-label="Search talents" />
+                </label>
+                <button type="button" className="district-primary-button talent-admin-add-button" onClick={() => openTalentEditor()}>
+                  Add talent
+                </button>
+              </div>
+            </div>
+            <div className="talent-admin-card-table-wrap">
+              <table className="talent-admin-card-table">
+                <thead>
+                  <tr>
+                    <th>Talent</th>
+                    <th>Category</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredTalents.map((talent) => (
+                    <tr key={talent.id} onClick={() => openTalentEditor(talent)}>
+                      <td>{talent.name}</td>
+                      <td>{talent.category_name || 'General'}</td>
+                    </tr>
+                  ))}
+                  {!filteredTalents.length && <tr><td colSpan="2" className="talent-admin-empty">No talents found.</td></tr>}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="talent-admin-card talent-admin-list-card talent-admin-club-card">
+            <div className="talent-admin-card-header-row">
+              <h3>Clubs</h3>
+              <div className="talent-admin-card-header-actions">
+                <label className="talent-admin-inline-search">
+                  <input type="search" value={clubSearch} onChange={(event) => setClubSearch(event.target.value)} placeholder="Search clubs" aria-label="Search clubs" />
+                </label>
+                <button type="button" className="district-primary-button talent-admin-add-button" onClick={() => openClubEditor()}>
+                  Add club
+                </button>
+              </div>
+            </div>
+            <div className="talent-admin-card-table-wrap">
+              <table className="talent-admin-card-table">
+                <thead>
+                  <tr>
+                    <th>Club</th>
+                    <th>Focus</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredCountryClubs.map((club) => (
+                    <tr key={club.id} onClick={() => openClubEditor(club)}>
+                      <td>{club.name}</td>
+                      <td>{club.focus || 'General'}</td>
+                    </tr>
+                  ))}
+                  {!filteredCountryClubs.length && <tr><td colSpan="2" className="talent-admin-empty">No clubs found.</td></tr>}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        {talentDrawerOpen && (
+          <>
+            <button type="button" className="sport-teacher-drawer-backdrop" aria-label="Close talent form" onClick={closeTalentEditor} />
+            <aside className="sport-teacher-search-drawer sport-teacher-registration-drawer talent-admin-school-drawer talent-admin-talent-drawer" aria-label="Talent editor">
+              <div className="sport-teacher-search-drawer-header">
+                <h2>{editingTalentId ? 'Edit talent' : 'Add talent'}</h2>
+                <button type="button" onClick={closeTalentEditor} aria-label="Close talent form">&times;</button>
+              </div>
+              <form onSubmit={handleTalentSubmit} className="sport-teacher-profile-form">
+                <div className="sport-teacher-registration-form-grid">
+                  <label data-label="Talent name"><input value={talentForm.name} onChange={(event) => setTalentForm((current) => ({ ...current, name: event.target.value }))} placeholder="e.g. Football" /></label>
+                </div>
+                <div className="sport-teacher-registration-form-grid">
+                  <label data-label="Talent category"><select value={talentForm.category} onChange={(event) => setTalentForm((current) => ({ ...current, category: event.target.value }))}><option value="">Select category</option>{talentCategories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select></label>
+                </div>
+                <div className="sport-teacher-registration-form-grid">
+                  <label data-label="Description"><textarea value={talentForm.description} onChange={(event) => setTalentForm((current) => ({ ...current, description: event.target.value }))} rows="4" placeholder="Optional description" /></label>
+                </div>
+                <div className="sport-teacher-registration-form-grid talent-admin-drawer-actions">
+                  <button type="button" className="sport-teacher-secondary-button" onClick={closeTalentEditor}>Cancel</button>
+                  {editingTalentId && (
+                    <button type="button" className="talent-admin-delete-button" onClick={() => handleTalentDelete(talents.find((talent) => talent.id === editingTalentId))}>Delete</button>
+                  )}
+                  <button type="submit" className="district-primary-button">{editingTalentId ? 'Update' : 'Create'}</button>
+                </div>
+              </form>
+            </aside>
+          </>
+        )}
+
+        {clubDrawerOpen && (
+          <>
+            <button type="button" className="sport-teacher-drawer-backdrop" aria-label="Close club form" onClick={closeClubEditor} />
+            <aside className="sport-teacher-search-drawer sport-teacher-registration-drawer talent-admin-school-drawer" aria-label="Club editor">
+              <div className="sport-teacher-search-drawer-header">
+                <h2>{editingClubId ? 'Edit club' : 'Add club'}</h2>
+                <button type="button" onClick={closeClubEditor} aria-label="Close club form">&times;</button>
+              </div>
+              <form onSubmit={handleClubSubmit} className="sport-teacher-profile-form">
+                <div className="sport-teacher-registration-form-grid">
+                  <label data-label="Club name"><input value={clubForm.name} onChange={(event) => setClubForm((current) => ({ ...current, name: event.target.value }))} placeholder="e.g. Blue Coast FC" /></label>
+                  <label data-label="Focus"><input value={clubForm.focus} onChange={(event) => setClubForm((current) => ({ ...current, focus: event.target.value }))} placeholder="e.g. Youth development" /></label>
+                </div>
+                <div className="sport-teacher-registration-form-grid">
+                  <label data-label="Description"><textarea value={clubForm.description} onChange={(event) => setClubForm((current) => ({ ...current, description: event.target.value }))} rows="4" placeholder="Optional description" /></label>
+                </div>
+                <div className="sport-teacher-registration-form-grid talent-admin-drawer-actions">
+                  <button type="button" className="sport-teacher-secondary-button" onClick={closeClubEditor}>Cancel</button>
+                  {editingClubId && (
+                    <button type="button" className="talent-admin-delete-button" onClick={() => handleClubDelete(countryClubs.find((club) => club.id === editingClubId))}>Delete</button>
+                  )}
+                  <button type="submit" className="district-primary-button">{editingClubId ? 'Update' : 'Create'}</button>
+                </div>
+              </form>
+            </aside>
+          </>
+        )}
+      </section>
+    ) : <section className="talent-admin-placeholder"><h1>Talent Administration</h1><p>Welcome to the management dashboard.</p></section>}{schoolDrawerOpen && <><button type="button" className="sport-teacher-drawer-backdrop" aria-label="Close school form" onClick={closeSchoolEditor} /><aside className="sport-teacher-search-drawer sport-teacher-registration-drawer talent-admin-school-drawer" aria-label="School editor"><div className="sport-teacher-search-drawer-header"><h2>{selectedSchool ? 'Edit school' : 'Add school'}</h2><button type="button" onClick={closeSchoolEditor} aria-label="Close school form">&times;</button></div><form onSubmit={saveSchool} className="sport-teacher-profile-form"><div className="sport-teacher-registration-form-grid"><label data-label="Registry number"><input placeholder="e.g. S2047" value={schoolForm.registry_number} onChange={(event) => updateField('registry_number', event.target.value)} /></label><label data-label="School name"><input required placeholder="e.g. Sengerema Secondary School" value={schoolForm.name} onChange={(event) => updateField('name', event.target.value)} /></label></div><div className="sport-teacher-registration-form-grid"><label data-label="Ownership type"><select value={schoolForm.ownership_type} onChange={(event) => updateField('ownership_type', event.target.value)}>{['Government', 'Private', 'Religious'].map((option) => <option key={option} value={option}>{option}</option>)}</select></label><label data-label="Phone"><input type="tel" placeholder="e.g. +255 712 345 678" value={schoolForm.phone || ''} onChange={(event) => updateField('phone', event.target.value)} /></label></div><div className="sport-teacher-registration-form-grid"><label data-label="Country"><select required value={schoolForm.country || ''} onChange={(event) => updateField('country', event.target.value)}><option value="">Select country</option>{countries.map((country) => <option key={country.id} value={country.id}>{country.name}</option>)}</select></label><label data-label="Zone"><select value={schoolForm.zone || ''} disabled={!schoolForm.country} onChange={(event) => updateField('zone', event.target.value)}><option value="">Select zone</option>{filteredZones.map((zone) => <option key={zone.id} value={zone.id}>{zone.name}</option>)}</select></label></div><div className="sport-teacher-registration-form-grid"><label data-label="Region"><select value={schoolForm.region || ''} disabled={!schoolForm.zone} onChange={(event) => updateField('region', event.target.value)}><option value="">Select region</option>{filteredRegions.map((region) => <option key={region.id} value={region.id}>{region.name}</option>)}</select></label><label data-label="District"><select value={schoolForm.district || ''} disabled={!schoolForm.region} onChange={(event) => updateField('district', event.target.value)}><option value="">Select district</option>{filteredDistricts.map((district) => <option key={district.id} value={district.id}>{district.name}</option>)}</select></label></div><div className="sport-teacher-registration-form-grid"><label data-label="Ward"><select value={schoolForm.ward || ''} disabled={!schoolForm.district} onChange={(event) => updateField('ward', event.target.value)}><option value="">Select ward</option>{filteredWards.map((ward) => <option key={ward.id} value={ward.id}>{ward.name}</option>)}</select></label><label data-label="Physical address"><input placeholder="P.O.Box 278 Sengerema" value={schoolForm.physical_address || ''} onChange={(event) => updateField('physical_address', event.target.value)} /></label></div><div className="sport-teacher-registration-form-grid"><label data-label="Email"><input type="email" placeholder="e.g. school@example.com" value={schoolForm.email || ''} onChange={(event) => updateField('email', event.target.value)} /></label></div><div className="sport-teacher-registration-form-grid"><button type="button" className="sport-teacher-secondary-button" onClick={closeSchoolEditor}>Cancel</button><button type="submit" className="district-primary-button" disabled={schoolSubmitting}>{schoolSubmitting ? 'Saving...' : selectedSchool ? 'Update school' : 'Create school'}</button>{selectedSchool && <button type="button" className="sport-teacher-danger-button" onClick={deleteSchool}>Delete</button>}</div></form></aside></>}</main>
+  </div>;
+}

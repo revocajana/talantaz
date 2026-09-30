@@ -1,0 +1,212 @@
+import { useEffect, useRef, useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import '../styles/shared.css';
+
+export const Header = ({ title, onMenuToggle }) => {
+  const { user } = useAuth();
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const handleProfile = () => {
+    setMenuOpen(false);
+    console.log('Open profile');
+  };
+
+  const handleChangePassword = () => {
+    setMenuOpen(false);
+    console.log('Open change password');
+  };
+
+  return (
+    <header className="header">
+      <div className="header-content">
+        <div className="header-left">
+          <h1 className="header-title">{title}</h1>
+        </div>
+
+        <div className="header-right">
+          <div className="user-menu-wrapper">
+            <button
+              className="user-menu-trigger"
+              onClick={() => setMenuOpen((prev) => !prev)}
+              aria-label="User menu"
+              title={user?.username || 'User'}
+            >
+              <span className="user-icon">👤</span>
+            </button>
+
+            {menuOpen && (
+              <div className="user-menu-dropdown">
+                <button type="button" className="user-menu-item" onClick={handleProfile}>
+                  Profile
+                </button>
+                <button type="button" className="user-menu-item" onClick={handleChangePassword}>
+                  Change Password
+                </button>
+              </div>
+            )}
+          </div>
+
+          {onMenuToggle && (
+            <button className="menu-toggle" onClick={onMenuToggle} aria-label="Open menu">
+              ☰
+            </button>
+          )}
+        </div>
+      </div>
+    </header>
+  );
+};
+
+export const Sidebar = ({ isOpen, links, onClose, footerContent }) => {
+  return (
+    <>
+      <div className={`sidebar-overlay ${isOpen ? 'active' : ''}`} onClick={onClose} />
+      <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
+        <div className="sidebar-header">
+          <h2>Menu</h2>
+          <button className="close-btn" onClick={onClose}>✕</button>
+        </div>
+
+        <nav className="sidebar-nav">
+          {links.map((link, idx) => (
+            <button
+              key={idx}
+              type="button"
+              className={`nav-link ${link.active ? 'active' : ''}`}
+              onClick={() => {
+                link.onClick?.();
+                onClose?.();
+              }}
+            >
+              {link.icon && <span className="nav-icon">{link.icon}</span>}
+              {link.label}
+            </button>
+          ))}
+        </nav>
+
+        {footerContent && <div className="sidebar-footer">{footerContent}</div>}
+      </aside>
+    </>
+  );
+};
+
+export const DashboardCard = ({ title, value, icon, color = 'blue' }) => {
+  return (
+    <div className={`dashboard-card card-${color}`}>
+      <div className="card-header">
+        <span className="card-icon">{icon}</span>
+        <h3>{title}</h3>
+      </div>
+      <div className="card-value">{value}</div>
+    </div>
+  );
+};
+
+export const DataTable = ({ headers, rows }) => {
+  return (
+    <div className="table-container">
+      <table className="data-table">
+        <thead>
+          <tr>
+            {headers.map((header, idx) => (
+              <th key={idx}>{header}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row, idx) => (
+            <tr key={idx}>
+              {Object.values(row).map((cell, cellIdx) => (
+                <td key={cellIdx}>{cell}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+export const FormInput = ({ label, type = 'text', placeholder, name, value, onChange }) => {
+  return (
+    <div className="form-group">
+      <label htmlFor={name}>{label}</label>
+      <input
+        id={name}
+        type={type}
+        placeholder={placeholder}
+        name={name}
+        value={value}
+        onChange={onChange}
+      />
+    </div>
+  );
+};
+
+export const ActionButton = ({ children, onClick, variant = 'primary', disabled = false }) => {
+  return (
+    <button
+      className={`btn btn-${variant}`}
+      onClick={onClick}
+      disabled={disabled}
+    >
+      {children}
+    </button>
+  );
+};
+
+export const ProfileMenu = ({ 
+  isOpen, 
+  onToggle, 
+  onProfile, 
+  onChangePassword, 
+  onLogout, 
+  username 
+}) => {
+  const { user } = useAuth();
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    if (!isOpen) return undefined;
+
+    const handleOutsidePointer = (event) => {
+      if (!menuRef.current?.contains(event.target)) {
+        onToggle();
+      }
+    };
+
+    document.addEventListener('pointerdown', handleOutsidePointer);
+    return () => document.removeEventListener('pointerdown', handleOutsidePointer);
+  }, [isOpen, onToggle]);
+  
+  return (
+    <div className="sport-teacher-profile" ref={menuRef}>
+      <button
+        type="button"
+        className="sport-teacher-profile-button"
+        onClick={onToggle}
+        aria-label="Open profile menu"
+        aria-expanded={isOpen}
+        title={username || user?.username || 'Profile'}
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="8" r="3.5" />
+          <path d="M4.5 20c.8-3.5 3.5-5.5 7.5-5.5s6.7 2 7.5 5.5" />
+        </svg>
+      </button>
+      {isOpen && (
+        <div className="sport-teacher-profile-menu">
+          <button type="button" onClick={onProfile}>
+            Profile
+          </button>
+          <button type="button" onClick={onChangePassword}>
+            Change password
+          </button>
+          <button type="button" className="sport-teacher-profile-logout" onClick={onLogout}>
+            Logout
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};

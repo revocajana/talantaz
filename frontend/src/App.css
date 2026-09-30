@@ -1,0 +1,16 @@
+/* App-level styles (imports from shared) */
+@import './styles/shared.css';
+@import './styles/login.css';
+@import './styles/dashboard.css';
+
+html, body {
+  min-height: 100%;
+  width: 100%;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+}

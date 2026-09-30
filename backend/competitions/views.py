@@ -1,0 +1,290 @@
+from django.utils import timezone
+from django.contrib.contenttypes.models import ContentType
+from django.db.models import Q
+from rest_framework import status, viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
+
+from .models import Competition, CompetitionParticipation, CompetitionJudge
+from core.models import District, School, Zone
+from .serializers import CompetitionSerializer, CompetitionParticipationSerializer, CompetitionJudgeSerializer
+from core.permissions import AuthenticatedReadOnly, ScopedQuerysetMixin, StudentDataPermission
+
+import pandas as pd
+from rest_framework.views import APIView
+from rest_framework.parsers import MultiPartParser, FormParser
+from students.models import Student
+
+from django.db import transaction
+from rest_framework.parsers import MultiPartParser, FormParser
+from core.permissions import IsSportTeacher
+
+
+class CompetitionViewSet(ScopedQuerysetMixin, viewsets.ModelViewSet):
+    queryset = Competition.objects.prefetch_related('schools', 'participants').all()
+    serializer_class = CompetitionSerializer
+    permission_classes = [AuthenticatedReadOnly]
+    scope_paths = {
+        'student': 'participants__id', 'school': 'schools__id', 'country': 'schools__country_id',
+        'zone': 'schools__zone_id', 'region': 'schools__region_id',
+        'district': 'schools__district_id', 'ward': 'schools__ward_id',
+    }
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_authenticated and user.role == 'district_manager' and user.district_id:
+            district_type = ContentType.objects.get_for_model(District)
+            return self.queryset.filter(
+                Q(schools__district_id=user.district_id)
+                | Q(content_type=district_type, object_id=user.district_id)
+            ).distinct()
+        return super().get_queryset()
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        level = self.request.data.get('level')
+        if user.role == 'sport_teacher':
+            if level != 'school' or not user.school_id:
+                from rest_framework.exceptions import ValidationError
+                raise ValidationError('Sport teachers can create only school-level competitions for their school.')
+            competition = serializer.save(organizer=user, content_type=ContentType.objects.get_for_model(School), object_id=user.school_id)
+            competition.schools.set([user.school])
+            competition.participants.clear()
+            return
+        if user.role == 'district_manager':
+            district = user.district
+            if level != 'district' or district is None:
+                from rest_framework.exceptions import ValidationError
+                raise ValidationError('District managers can create only district-level competitions for their district.')
+            competition = serializer.save(
+                organizer=user,
+                content_type=ContentType.objects.get_for_model(District),
+                object_id=district.pk,
+                status='approved',
+                approved_by=user,
+                approved_at=timezone.now(),
+            )
+            competition.schools.set(School.objects.filter(district=district, is_approved=True))
+            competition.participants.clear()
+            return
+        if user.role == 'zone_manager':
+            zone = user.zone
+            if level != 'zone' or zone is None:
+                from rest_framework.exceptions import ValidationError
+                raise ValidationError('Zone managers can create only zone-level competitions for their zone.')
+            competition = serializer.save(organizer=user, content_type=ContentType.objects.get_for_model(Zone), object_id=zone.pk)
+            competition.schools.set(School.objects.filter(zone=zone, is_approved=True))
+            competition.participants.clear()
+            return
+        serializer.save(organizer=user)
+
+    def perform_update(self, serializer):
+        user = self.request.user
+        if user.role == 'sport_teacher':
+            competition = self.get_object()
+            if competition.level != 'school' or not competition.schools.filter(pk=user.school_id).exists():
+                from rest_framework.exceptions import PermissionDenied
+                raise PermissionDenied('You can update only school competitions for your school.')
+            competition = serializer.save(level='school', content_type=ContentType.objects.get_for_model(School), object_id=user.school_id)
+            competition.schools.set([user.school])
+            return
+        if user.role == 'district_manager':
+            competition = self.get_object()
+            if competition.level != 'district' or competition.object_id != user.district_id:
+                from rest_framework.exceptions import PermissionDenied
+                raise PermissionDenied('You can update only district competitions for your district.')
+            serializer.save(level='district', content_type=ContentType.objects.get_for_model(District), object_id=user.district_id)
+            return
+        if user.role == 'zone_manager':
+            competition = self.get_object()
+            if competition.level != 'zone' or competition.object_id != user.zone_id:
+                from rest_framework.exceptions import PermissionDenied
+                raise PermissionDenied('You can update only zone competitions for your zone.')
+            serializer.save(level='zone', content_type=ContentType.objects.get_for_model(Zone), object_id=user.zone_id)
+            return
+        serializer.save()
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        user = request.user
+        if user.role == 'zone_manager':
+            if instance.level != 'zone' or instance.object_id != user.zone_id:
+                from rest_framework.exceptions import PermissionDenied
+                raise PermissionDenied('You can delete only zone competitions for your zone.')
+        elif user.role == 'district_manager':
+            if instance.level != 'district' or instance.object_id != user.district_id:
+                from rest_framework.exceptions import PermissionDenied
+                raise PermissionDenied('You can delete only district competitions for your district.')
+        elif user.role == 'sport_teacher':
+            if instance.level != 'school' or not instance.schools.filter(pk=user.school_id).exists():
+                from rest_framework.exceptions import PermissionDenied
+                raise PermissionDenied('You can delete only school competitions for your school.')
+        return super().destroy(request, *args, **kwargs)
+
+    @action(detail=True, methods=['post'])
+    def approve(self, request, pk=None):
+        competition = self.get_object()
+        competition.status = 'approved'
+        competition.approved_by = request.user
+        competition.approved_at = timezone.now()
+        competition.save(update_fields=['status', 'approved_by', 'approved_at'])
+        return Response(self.get_serializer(competition).data)
+
+    @action(detail=False, methods=['get'], permission_classes=[IsSportTeacher])
+    def school_results(self, request):
+        """Get competition results for the sport teacher's school."""
+        school_id = request.user.school_id
+        if not school_id:
+            return Response({'error': 'User has no school assigned'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        participations = CompetitionParticipation.objects.filter(
+            competition__schools=school_id
+        ).select_related('student', 'competition')
+        
+        data = [{
+            'id': p.id,
+            'competition_id': p.competition.id,
+            'competition_name': p.competition.name,
+            'student_id': p.student.id,
+            'student_name': f"{p.student.first_name} {p.student.last_name}",
+            'score': p.score,
+            'status': p.status,
+            'joined_at': p.joined_at,
+        } for p in participations]
+        
+        return Response(data)
+
+    @action(detail=False, methods=['get'], permission_classes=[IsSportTeacher])
+    def eligible_for_promotion(self, request):
+        """Get students eligible for district promotion (score >= 50%)."""
+        school_id = request.user.school_id
+        if not school_id:
+            return Response({'error': 'User has no school assigned'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        participations = CompetitionParticipation.objects.filter(
+            competition__schools=school_id,
+            score__gte=50,
+            status='finished'
+        ).select_related('student', 'competition')
+        
+        data = [{
+            'participation_id': p.id,
+            'student_id': p.student.id,
+            'student_name': f"{p.student.first_name} {p.student.last_name}",
+            'score': p.score,
+            'competition_id': p.competition.id,
+            'competition_name': p.competition.name,
+        } for p in participations]
+        
+        return Response(data)
+        
+
+
+class CompetitionParticipationViewSet(ScopedQuerysetMixin, viewsets.ModelViewSet):
+    queryset = CompetitionParticipation.objects.select_related('competition', 'student').all()
+    serializer_class = CompetitionParticipationSerializer
+    permission_classes = [StudentDataPermission]
+    scope_paths = {
+        'student': 'student_id', 'school': 'student__school_id', 'country': 'student__school__country_id',
+        'zone': 'student__school__zone_id', 'region': 'student__school__region_id',
+        'district': 'student__school__district_id', 'ward': 'student__school__ward_id',
+    }
+
+    def perform_update(self, serializer):
+        from results.models import SchoolCompetitionSubmission
+        from rest_framework.exceptions import ValidationError
+        participation = self.get_object()
+        if SchoolCompetitionSubmission.objects.filter(
+            school_id=participation.student.school_id,
+            competition_id=participation.competition_id,
+            status__in={'submitted', 'approved'},
+        ).exists():
+            raise ValidationError('Submitted or approved competition results are locked.')
+        serializer.save()
+
+
+class CompetitionJudgeViewSet(viewsets.ModelViewSet):
+    queryset = CompetitionJudge.objects.select_related('competition', 'judge').all()
+    serializer_class = CompetitionJudgeSerializer
+    permission_classes = [AuthenticatedReadOnly]
+
+
+class BulkResultUploadView(APIView):
+    """Upload Excel file with school competition results.
+    
+    Expected columns:
+    - student_id (string, required)
+    - competition_id (int, required) 
+    - score (decimal 0-100, optional)
+    - status (registered/finished/disqualified, default: finished)
+    """
+    permission_classes = [IsSportTeacher] # type: ignore
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request):
+        file = request.FILES.get('file')
+        if not file:
+            return Response({'error': 'No file provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Validate file extension
+        if not file.name.endswith(('.xlsx', '.xls')):
+            return Response({'error': 'File must be Excel (.xlsx or .xls)'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            df = pd.read_excel(file)
+        except Exception as e:
+            return Response({'error': f'Invalid Excel file: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Validate required columns
+        required_cols = ['student_id', 'competition_id']
+        missing = [col for col in required_cols if col not in df.columns]
+        if missing:
+            return Response({'error': f'Missing required columns: {missing}'}, status=status.HTTP_400_BAD_REQUEST)
+
+        errors = []
+        created = 0
+        updated = 0
+
+        with transaction.atomic(): # type: ignore
+            for index, row in df.iterrows():
+                row_num = index + 2  # 1-indexed + header row
+                try:
+                    student = Student.objects.get(
+                        student_id=str(row['student_id']),
+                        school=request.user.school
+                    )
+                    
+                    competition_id = int(row['competition_id'])
+                    score = row.get('score')
+                    status_val = row.get('status', 'finished')
+                    
+                    if status_val not in ['registered', 'finished', 'disqualified']:
+                        errors.append(f"Row {row_num}: Invalid status '{status_val}'. Must be registered/finished/disqualified")
+                        continue
+                    
+                    participation, created_flag = CompetitionParticipation.objects.update_or_create(
+                        competition_id=competition_id,
+                        student=student,
+                        defaults={
+                            'score': float(score) if pd.notna(score) else None,
+                            'status': status_val
+                        }
+                    )
+                    if created_flag:
+                        created += 1
+                    else:
+                        updated += 1
+                        
+                except Student.DoesNotExist:
+                    errors.append(f"Row {row_num}: Student '{row['student_id']}' not found in your school")
+                except ValueError as e:
+                    errors.append(f"Row {row_num}: {str(e)}")
+                except Exception as e:
+                    errors.append(f"Row {row_num}: {str(e)}")
+
+        return Response({
+            'created': created,
+            'updated': updated,
+            'errors': errors,
+            'total_rows': len(df)
+        }, status=status.HTTP_201_CREATED if not errors else status.HTTP_207_MULTI_STATUS)
